@@ -10,19 +10,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     drawArea = new DrawArea(ui->frame);
-    connect(drawArea, SIGNAL(sendPicture(QImage)), this, SLOT(GetPicture(QImage)));
+    connect(drawArea, SIGNAL(sendPicture(QImage *)), this, SLOT(GetPicture(QImage *)));
     drawArea->setGeometry(QRect(2, 2, 280, 280));
 }
 
-void MainWindow::GetPicture(QImage img){
+void MainWindow::GetPicture(QImage *img){
     qInfo() << "test string";
-    img.save(QDir::homePath() + "/3.png", "png");
+    Converter conv(img);
+    conv.saveImage();
+//    img.save(QDir::homePath() + "/3.png", "png");
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete drawArea;
+//    delete convert;
 }
 
 } // namespace s21

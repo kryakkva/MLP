@@ -21,7 +21,7 @@ public:
     QRect findCropArea();
 
 signals:
-    void sendPicture(QImage);
+    void sendPicture(QImage *);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -36,7 +36,7 @@ private:
     bool modified;
     bool scribling;
     QColor myPenColor;
-    QImage image;
+    QImage *image;
     QPoint lastPoint;
     int myPenWidth;
     int widthP;

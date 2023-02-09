@@ -9,8 +9,8 @@ namespace s21 {
         myPenWidth = 14;
         modified = false;
         scribling = false;
-        image = QImage(280, 280, QImage::Format_RGB32);
-        image.fill(Qt::white);
+        image = new QImage(280, 280, QImage::Format_RGB32);
+        image->fill(Qt::white);
 //        QPainter painter(&image);
 //        painter.drawImage(QPoint(0,0), image);
     }
@@ -30,7 +30,7 @@ namespace s21 {
         }
         else if (event->button() == Qt::RightButton)
         {
-            image.fill(Qt::white);
+            image->fill(Qt::white);
             update();
         }
     }
@@ -46,16 +46,17 @@ namespace s21 {
             scribling = false;
         }
         emit sendPicture(image);
+        update();
     }
 
     void DrawArea::paintEvent(QPaintEvent *event){
         QPainter painter(this);
 //        QRect dirtyRect = event->rect();
-        painter.drawImage(event->rect(), image);
+        painter.drawImage(event->rect(), *image);
     }
 
     void DrawArea::drawLineTo(const QPoint &endPoint){
-        QPainter painter(&image);
+        QPainter painter(image);
         painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 //        painter.drawEllipse(lastPoint, myPenWidth/2, myPenWidth/2);
         painter.drawPoint(lastPoint);
@@ -66,7 +67,7 @@ namespace s21 {
         update();
         lastPoint = endPoint;
     }
-
+/*
     QRect DrawArea::findCropArea(){
         QImage img = image;
         int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
@@ -264,4 +265,5 @@ namespace s21 {
     void DrawArea::setPenWidth(int val){
         myPenWidth = val;
     }
+    */
 }
