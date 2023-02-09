@@ -5,6 +5,7 @@
 
 #include "Network.h"
 #include "drawarea.h"
+#include "converter.h"
 
 namespace s21 {
 
@@ -19,11 +20,12 @@ public:
     ~MainWindow();
 
 private slots:
- void GetPicture(QImage);
+ void GetPicture(QImage *);
 
 private:
     Ui::View *ui;
     DrawArea *drawArea;
+//    Converter *convert;
 };
 
 } // namespace s21

@@ -5,10 +5,17 @@
 #ifndef MLP_CONVERTER_H
 #define MLP_CONVERTER_H
 
+#include <QImage>
 namespace s21 {
 
-    class converter {
-
+    class Converter {
+    public:
+        Converter(QImage *image);
+        ~Converter();
+    private:
+        QImage *_image;
+    public:
+        void saveImage();
     };
 
 } // s21
