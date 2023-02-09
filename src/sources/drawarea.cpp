@@ -15,6 +15,10 @@ namespace s21 {
 //        painter.drawImage(QPoint(0,0), image);
     }
 
+    DrawArea::~DrawArea() noexcept {
+        delete image;
+    }
+
     void DrawArea::mousePressEvent(QMouseEvent *event) {
 //        if (modified == false){
 //            image.fill(Qt::white);
@@ -44,8 +48,8 @@ namespace s21 {
         if(event->button() == Qt::LeftButton && scribling){
             drawLineTo(event->pos());
             scribling = false;
+            emit sendPicture(image);
         }
-        emit sendPicture(image);
         update();
     }
 

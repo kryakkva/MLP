@@ -6,6 +6,9 @@
 #define MLP_CONVERTER_H
 
 #include <QImage>
+#include <iostream>
+#include <vector>
+
 namespace s21 {
 
     class Converter {
@@ -16,6 +19,9 @@ namespace s21 {
         QImage *_image;
     public:
         void saveImage();
+        QRect findCropArea();
+        std::vector<double> convertDrawImg();
+        std::vector<double> convertLoadImg();
     };
 
 } // s21

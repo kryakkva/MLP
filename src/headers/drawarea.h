@@ -14,6 +14,7 @@ Q_OBJECT
 
 public:
     explicit DrawArea(QWidget *parent = nullptr);
+    ~DrawArea() noexcept;
 //	bool saveImage(const QString &fileName, const char *fileFormat);
     double *saveImage();
     double *openImage(const QString &fileName);
