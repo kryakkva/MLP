@@ -5,7 +5,7 @@
 #ifndef MLP_MATRIX_H
 #define MLP_MATRIX_H
 
-#include "ActivateFunction.h"
+#include "./ActivateFunction.h"
 
 namespace s21 {
     class Matrix {

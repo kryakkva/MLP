@@ -5,7 +5,7 @@
 #ifndef MLP_NETWORK_H
 #define MLP_NETWORK_H
 
-#include "Matrix.h"
+#include "./Matrix.h"
 #include <fstream>
 #include <sstream>
 #include <vector>

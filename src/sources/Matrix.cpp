@@ -2,7 +2,7 @@
 // Created by apaege on 25.12.2022.
 //
 
-#include "Matrix.h"
+#include "../headers/Matrix.h"
 
 namespace s21 {
     void Matrix::Init(int row_, int col_) {

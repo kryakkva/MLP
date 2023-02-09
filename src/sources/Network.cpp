@@ -2,7 +2,7 @@
 // Created by apaege on 08.01.2023.
 //
 
-#include "Network.h"
+#include "../headers/Network.h"
 
 namespace s21 {
     void Network::Init(data_Network data) {

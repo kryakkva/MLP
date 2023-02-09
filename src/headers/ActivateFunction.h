@@ -6,6 +6,7 @@
 #define MLP_ACTIVATEFUNCTION_H
 
 #include <iostream>
+#include <math.h>
 
 namespace s21 {
     class ActivateFunction {
