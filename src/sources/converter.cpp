@@ -69,6 +69,7 @@ void rescaled(QImage *img) {
 
 std::vector<double> Converter::convertDrawImg() {
   std::vector<double> _v;
+  _v.push_back(-1.);
   QImage drawImg =
       _image->copy(findCropArea())
           .scaled(28, 28, Qt::KeepAspectRatio, Qt::SmoothTransformation)
@@ -88,7 +89,7 @@ std::vector<double> Converter::convertDrawImg() {
     QDebug dbg(QtDebugMsg);
     for (int x = 0; x < drawImg.width(); ++x) {
       QColor color = drawImg.pixelColor(x, y).toHsl();
-      _v.push_back(color.lightness() / 255);
+      _v.push_back(color.lightness() / 255.);
     }
   }
   drawImg.save(QDir::homePath() + "/2.png", "png");

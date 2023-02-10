@@ -21,9 +21,14 @@ class MainWindow : public QMainWindow {
  private slots:
   void GetPicture(QImage *);
 
+ signals:
+  void sendChar(const QString &);
+
  private:
   Ui::View *ui;
   DrawArea *drawArea;
+  Network NW{};
+  data_Network NW_config;
   // Converter *convert;
 };
 }  // namespace s21
