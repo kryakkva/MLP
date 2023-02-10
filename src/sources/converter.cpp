@@ -2,6 +2,7 @@
 // Created by Yarik on 09.02.2023.
 //
 
+#include <QDir>
 #include "converter.h"
 
 #include <QDir>

@@ -6,6 +6,7 @@
 #include "Network.h"
 #include "converter.h"
 #include "drawarea.h"
+#include "converter.h"
 
 namespace s21 {
 

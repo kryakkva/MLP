@@ -25,7 +25,6 @@ class Converter {
   std::vector<double> convertDrawImg();
   std::vector<double> convertLoadImg();
 };
-
 }  // namespace s21
 
 #endif  // MLP_CONVERTER_H
