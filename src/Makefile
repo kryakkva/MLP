@@ -2,7 +2,7 @@
 ##              Makefile template              ##
 #################################################
 
-SOURCES = ./*
+SOURCES = ./headers/* ./sources/*
 
 #     These special targets are called phony     #
 .PHONY: all dist clean install uninstall dvi build
