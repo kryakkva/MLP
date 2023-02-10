@@ -30,6 +30,19 @@
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
+   <widget class="QLabel" name="char_is">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>-10</y>
+      <width>281</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

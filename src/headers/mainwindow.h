@@ -4,29 +4,32 @@
 #include <QMainWindow>
 
 #include "Network.h"
-#include "drawarea.h"
 #include "converter.h"
+#include "drawarea.h"
 
 namespace s21 {
 
-namespace Ui { class View; }
+namespace Ui {
+class View;
+}
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow : public QMainWindow {
+  Q_OBJECT
+ public:
+  MainWindow(QWidget *parent = nullptr);
+  ~MainWindow();
+ private slots:
+  void GetPicture(QImage *);
 
-public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+ signals:
+  void sendChar(const QString &);
 
-private slots:
- void GetPicture(QImage *);
-
-private:
-    Ui::View *ui;
-    DrawArea *drawArea;
-//    Converter *convert;
+ private:
+  Ui::View *ui;
+  DrawArea *drawArea;
+  Network NW{};
+  data_Network NW_config;
+  // Converter *convert;
 };
-
-} // namespace s21
-#endif // S21_MAINWINDOW_H
+}  // namespace s21
+#endif  // S21_MAINWINDOW_H

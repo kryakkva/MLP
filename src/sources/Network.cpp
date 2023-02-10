@@ -115,7 +115,7 @@ namespace s21 {
     void Network::ReadWeights() {
         std::ostringstream      filename;
         std::ifstream           fin;
-        filename << "src_data/Weights_" << L - 2 << ".txt";
+        filename << "/Users/yarik/MyProjects/MLP/src_data/Weights_" << L - 2 << ".txt";
         fin.open(filename.str());
         if (!fin.is_open()) {
             std::cout << "Error reading file " << filename.str() << std::endl;
