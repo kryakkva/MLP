@@ -30,17 +30,47 @@ static data_Network ReadDataNetwork() {
   return data;
 }
 
+void MainWindow::signalSlotsConnect(){
+  connect(drawArea, SIGNAL(sendPicture(QImage *)),
+          this,SLOT(GetPicture(QImage *)));
+  connect(this, SIGNAL(sendChar(const QString &)),
+          ui->char_is,SLOT(setText(const QString &)));
+  connect(ui->layerNumber, SIGNAL(valueChanged(int)),
+          ui->lcdNumber, SLOT(display(int)));
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::View) {
   ui->setupUi(this);
   drawArea = new DrawArea(ui->frame);
+  drawArea->setGeometry(QRect(2, 2, 280, 280));
+  signalSlotsConnect();
+}
+
+MainWindow::~MainWindow() {
+  delete ui;
+  delete drawArea;
+  // delete convert;
+}
+
+void MainWindow::initMlp() {
+  // QString fileName = QFileDialog::getOpenFileName(this, tr("OpenFile"),
+  //                                                 QDir::homePath()/*, tr("Images (*.png *.jpg)")*/);
+  QString folderName = QFileDialog::getExistingDirectory(this, tr("OpenFile"), QDir::homePath());
+  qInfo() << folderName;
   NW_config = ReadDataNetwork();
   NW.Init(NW_config);
-  NW.ReadWeights();
-  connect(drawArea, SIGNAL(sendPicture(QImage *)), this,
-          SLOT(GetPicture(QImage *)));
-  connect(this, SIGNAL(sendChar(const QString &)), ui->char_is, SLOT(setText(const QString &)));
-  drawArea->setGeometry(QRect(2, 2, 280, 280));
+  NW.ReadWeights(folderName.toStdString());
+  delete [] NW_config.size;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+  NW.ClearLeaks();
+  event->accept();
+  // } else {
+  //   event->ignore();
+  // }
 }
 
 void MainWindow::GetPicture(QImage *img) {
@@ -54,11 +84,5 @@ void MainWindow::GetPicture(QImage *img) {
   sendChar("I think it's the letter: " + QString(QChar(NW.ForwardFeed() + 64)));
   // printVector(_v);
   // img.save(QDir::homePath() + "/3.png", "png");
-}
-
-MainWindow::~MainWindow() {
-  delete ui;
-  delete drawArea;
-  // delete convert;
 }
 }  // namespace s21

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
- project(MLP VERSION 1.0 LANGUAGES CXX)
+project(MLP VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -29,31 +29,35 @@ include_directories(
 set(CMAKE_AUTOUIC_SEARCH_PATHS forms)
 
 set(SOURCES
-  main.cpp
-  sources/mainwindow.cpp
-  sources/ActivateFunction.cpp
-  sources/Matrix.cpp
-  sources/Network.cpp
-  sources/drawarea.cpp
-        sources/converter.cpp headers/converter.h)
+        main.cpp
+        sources/mainwindow.cpp
+        sources/ActivateFunction.cpp
+        sources/Matrix.cpp
+        sources/Network.cpp
+        sources/drawarea.cpp
+        sources/converter.cpp
+        sources/StateController.cpp
+        )
 
 set(HEADERS
-  headers/mainwindow.h
-  headers/ActivateFunction.h
-  headers/Matrix.h
-  headers/Network.h
-  headers/drawarea.h
-        sources/converter.cpp headers/converter.h)
+        headers/mainwindow.h
+        headers/ActivateFunction.h
+        headers/Matrix.h
+        headers/Network.h
+        headers/drawarea.h
+        headers/converter.h
+        headers/StateController.h
+        )
 
 set(FORMS
-  forms/view.ui
+        forms/view.ui
 )
 
 set(PROJECT_SOURCES
-  ${SOURCES}
-  ${HEADERS}
-  ${FORMS}
-)
+        ${SOURCES}
+        ${HEADERS}
+        ${FORMS}
+        )
 
 if (APPLE)
   set(MACOSX_BUNDLE_ICON_FILE neuro_.png)

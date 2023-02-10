@@ -18,6 +18,11 @@ class MainWindow : public QMainWindow {
  public:
   MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
+  void closeEvent(QCloseEvent *event);
+  void initMlp();
+
+ private:
+  void signalSlotsConnect();
  private slots:
   void GetPicture(QImage *);
 

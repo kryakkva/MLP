@@ -112,14 +112,19 @@ namespace s21 {
         fout.close();
     }
 
-    void Network::ReadWeights() {
-        std::ostringstream      filename;
+    void Network::ReadWeights(std::string file) {
+        // std::ostringstream      filename;
         std::ifstream           fin;
-        filename << "/Users/yarik/MyProjects/MLP/src_data/Weights_" << L - 2 << ".txt";
-        fin.open(filename.str());
-        if (!fin.is_open()) {
-            std::cout << "Error reading file " << filename.str() << std::endl;
-            exit(0);
+        // filename << "/Users/yarik/MyProjects/MLP/src_data/Weights_" << L - 2 << ".txt";
+        // filename << file;
+        // fin.open(filename.str());
+        fin.open(file + "/Weights_" + std::to_string(L - 2) + ".txt");
+
+      if (!fin.is_open()) {
+            // std::cout << "Error reading file " << filename.str() << std::endl;
+        std::cout << "Error reading file " << file << std::endl;
+
+        exit(0);
         }
         printf("L = %d\n", L - 2);
         for (int i = 0; i < L - 1; ++i)
@@ -127,8 +132,8 @@ namespace s21 {
         for (int i = 0; i < L - 1; ++i)
             for (int j = 0; j < size[i + 1]; ++j)
                 fin >> bias[i][j];
-        filename << " readed \n";
-        std::cout << filename.str();
+        // filename << " readed \n";
+        // std::cout << filename.str();
         fin.close();
     }
 

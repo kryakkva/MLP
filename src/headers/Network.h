@@ -35,7 +35,7 @@ namespace s21 {
         void WeightsUpdater(double lr);
 
         void SaveWeights();
-        void ReadWeights();
+        void ReadWeights(std::string file);
 
         void ClearLeaks();
         ~Network();
