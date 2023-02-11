@@ -31,42 +31,48 @@ static data_Network ReadDataNetwork() {
 }
 
 void MainWindow::signalSlotsConnect(){
-  connect(drawArea, SIGNAL(sendPicture(QImage *)),
-          this,SLOT(GetPicture(QImage *)));
+  connect(_drawArea, SIGNAL(sendPicture(QImage *)),
+          this, SLOT(GetPicture(QImage *)));
   connect(this, SIGNAL(sendChar(const QString &)),
-          ui->char_is,SLOT(setText(const QString &)));
-  connect(ui->layerNumber, SIGNAL(valueChanged(int)),
-          ui->lcdNumber, SLOT(display(int)));
+          _ui->char_is, SLOT(setText(const QString &)));
+  connect(_ui->layerNumber, SIGNAL(valueChanged(int)),
+          _ui->lcdNumber, SLOT(display(int)));
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::View) {
-  ui->setupUi(this);
-  drawArea = new DrawArea(ui->frame);
-  drawArea->setGeometry(QRect(2, 2, 280, 280));
+    : QMainWindow(parent), _ui(new Ui::View) {
+  _ui->setupUi(this);
+  _drawArea = new DrawArea(_ui->frame);
+  _drawArea->setGeometry(QRect(2, 2, 280, 280));
   signalSlotsConnect();
 }
 
 MainWindow::~MainWindow() {
-  delete ui;
-  delete drawArea;
+  delete _ui;
+  delete _drawArea;
   // delete convert;
 }
 
 void MainWindow::initMlp() {
+  QMessageBox dialog;
+  dialog.setBaseSize(400, 150);
+  dialog.setText("The neural network is not trained.");
+  dialog.setInformativeText("Please start the tutorial or select the weight folder");
+  dialog.exec();
   // QString fileName = QFileDialog::getOpenFileName(this, tr("OpenFile"),
   //                                                 QDir::homePath()/*, tr("Images (*.png *.jpg)")*/);
-  QString folderName = QFileDialog::getExistingDirectory(this, tr("OpenFile"), QDir::homePath());
-  qInfo() << folderName;
-  NW_config = ReadDataNetwork();
-  NW.Init(NW_config);
-  NW.ReadWeights(folderName.toStdString());
-  delete [] NW_config.size;
+  // QString folderName = QFileDialog::getExistingDirectory(this, tr("OpenFile"), QDir::homePath());
+  // qInfo() << folderName;
+  QString name = "/Users/yarik/MyProjects/MLP/src_data";
+  _netConfig = ReadDataNetwork();
+  _net.Init(_netConfig);
+  _net.ReadWeights(name.toStdString());
+  delete [] _netConfig.size;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  NW.ClearLeaks();
+  _net.ClearLeaks();
   event->accept();
   // } else {
   //   event->ignore();
@@ -78,10 +84,10 @@ void MainWindow::GetPicture(QImage *img) {
   Converter conv(img);
   // conv.saveImage();
   std::vector<double> _v = conv.convertDrawImg();
-  NW.SetInput(_v);
-  // NW.ForwardFeed();
-  // std::cout << (char)(NW.ForwardFeed() + 64) << std::endl;
-  sendChar("I think it's the letter: " + QString(QChar(NW.ForwardFeed() + 64)));
+  _net.SetInput(_v);
+  // _net.ForwardFeed();
+  // std::cout << (char)(_net.ForwardFeed() + 64) << std::endl;
+  sendChar("I think it's the letter: " + QString(QChar(_net.ForwardFeed() + 64)));
   // printVector(_v);
   // img.save(QDir::homePath() + "/3.png", "png");
 }

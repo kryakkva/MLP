@@ -6,6 +6,7 @@
 #include "Network.h"
 #include "converter.h"
 #include "drawarea.h"
+#include "statecontroller.h"
 
 namespace s21 {
 
@@ -30,10 +31,11 @@ class MainWindow : public QMainWindow {
   void sendChar(const QString &);
 
  private:
-  Ui::View *ui;
-  DrawArea *drawArea;
-  Network NW{};
-  data_Network NW_config;
+  Ui::View *_ui;
+  DrawArea *_drawArea;
+  Network _net{};
+  data_Network _netConfig;
+  StateController _state;
   // Converter *convert;
 };
 }  // namespace s21

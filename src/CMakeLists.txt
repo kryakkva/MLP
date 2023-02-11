@@ -36,7 +36,7 @@ set(SOURCES
         sources/Network.cpp
         sources/drawarea.cpp
         sources/converter.cpp
-        sources/StateController.cpp
+        sources/statecontroller.cpp
         )
 
 set(HEADERS
@@ -46,7 +46,7 @@ set(HEADERS
         headers/Network.h
         headers/drawarea.h
         headers/converter.h
-        headers/StateController.h
+        headers/statecontroller.h
         )
 
 set(FORMS
