@@ -13,6 +13,7 @@ namespace s21 {
     public:
         void Use(double *value, int n);
         double UseDer(double value);
+        double randomize(double low,double high);
     };
 
 } // s21

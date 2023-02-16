@@ -6,39 +6,47 @@
 #define MLP_NETWORK_H
 
 #include "./Matrix.h"
+#include "./Dataset.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
 
 namespace s21 {
-    struct data_Network {
-        int L;
-        int *size;
-    };
     class Network {
-        int L;
-        int *size;
-        ActivateFunction    actFunc;
-        Matrix  *weights;
-        double  **bias;
-        double  **neurons_val, **neurons_err;
-        double  *neurons_bias_val;
+    private:
+        int _typeNet = 0;
+        int _hidden = 2;
+        int _epoch = 10;
+        int _maxra = 0;
+        std::vector<int> _layerSize;
+        ActivateFunction    _actFunc;
+        Matrix  *_weights;
+        double  **_bias;
+        double  **_neurons_val, **_neurons_err;
+        double  *_neurons_bias_val;
     public:
-        void Init(data_Network data);
-        void PrintConfig();
+        Network();
+        Network(int l);
+        ~Network();
+
+        void InitMatrixNet();
         void SetInput(std::vector<double> values);
 
+        int NetWork(const Dataset& data, Datatype d);
         int ForwardFeed();
         int SearchMaxIndex(double *value);
 
         void BackPropogation(double expect);
         void WeightsUpdater(double lr);
 
-        void SaveWeights();
-        void ReadWeights(std::string file);
+        void SaveWeights_M(std::string filename);
+        void ReadWeights_M(std::string filename);
 
-        void ClearLeaks();
-        ~Network();
+        void setTypeNet(int n);
+        void setLayer(int n);
+        void setEpoch(int n);
+
+//        void ClearLeaks();
     };
 } // s21
 

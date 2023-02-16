@@ -13,4 +13,8 @@ namespace s21 {
         value = value * (1 - value);
         return value;
     }
+    double randomize(double low, double high)
+    {
+        return low + static_cast <double> (rand()) /( static_cast <double> (RAND_MAX/(high-low)));
+    }
 } // s21
