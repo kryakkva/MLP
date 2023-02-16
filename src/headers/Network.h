@@ -32,7 +32,7 @@ namespace s21 {
         void InitMatrixNet();
         void SetInput(std::vector<double> values);
 
-        int NetWork(const Dataset& data, Datatype d);
+        int NetWorkMain(const Dataset& data, Datatype d);
         int ForwardFeed();
         int SearchMaxIndex(double *value);
 

@@ -60,7 +60,7 @@ namespace s21 {
         }
     }
 
-    int Network::NetWork(const Dataset &data, Datatype d) {
+    int Network::NetWorkMain(const Dataset &data, Datatype d) {
         int index = 0;
         int ra = 0;
         for (size_t i = 0; i < data.getIns(d).size(); i++) {
