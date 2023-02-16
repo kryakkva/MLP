@@ -26,6 +26,7 @@ class MainWindow : public QMainWindow {
   void setDrawArea();
  private slots:
   void predictLetter(std::vector<double>);
+  void crossValidKgroup(int);
 
  signals:
   void letterIs(const QString &);

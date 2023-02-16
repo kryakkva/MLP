@@ -41,6 +41,8 @@ void MainWindow::signalSlotsConnect(){
           _drawArea->getConv(), SLOT(intToString(int)));
   connect(_drawArea->getConv(), SIGNAL(sendStr(const QString &)),
           _ui->testPartLabel,SLOT(setText(const QString &)));
+  connect(_ui->crossValidationCheckBox, SIGNAL(stateChanged(int)),
+          this, SLOT(crossValidKgroup(int)));
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -147,5 +149,9 @@ void MainWindow::predictLetter(std::vector<double> _v) {
   letterIs(QString(QChar(_net->ForwardFeed() + 64)));
   // printVector(_v);
   // img.save(QDir::homePath() + "/3.png", "png");
+}
+
+void MainWindow::crossValidKgroup(int i) {
+  _ui->kGroupsSpinBox->setEnabled(i);
 }
 }  // namespace s21
