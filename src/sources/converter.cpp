@@ -13,14 +13,16 @@ Converter::~Converter() {}
 void Converter::saveImage() {
   QImage im = *_image;
   im.invertPixels();
-  im.save(QDir::homePath() + "/4.png", "png");
+  // im.save(QDir::homePath() + "/4.png", "png");
 }
 
 QRect Converter::findCropArea() {
   QImage img = *_image;
+  // img.save(QDir::homePath() + "/1F.png", "png");
   int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
   bool first = false;
   QRgb bg = img.pixel(0, 0);
+  qInfo() << bg;
   for (int y = 0; y < img.height(); y++) {
     QDebug dbg(QtDebugMsg);
     QRgb *line = reinterpret_cast<QRgb *>(img.scanLine(y));
@@ -34,7 +36,7 @@ QRect Converter::findCropArea() {
         } else {
           if (y2 < y) y2 = y;
           if (x1 > x) x1 = x;
-          if (x2 < x && x2 > x1) x2 = x;
+          if (x2 < x) x2 = x;
         }
       }
     }
@@ -64,7 +66,23 @@ void rescaled(QImage *img) {
     *img = tmp.transformed(QTransform().rotate(-90));
   else
     *img = tmp;
-  img->save(QDir::homePath() + "/222.png", "png");
+  // img->save(QDir::homePath() + "/222.png", "png");
+}
+
+bool Converter::isInvert(QImage &img) {
+  int i = 0, k = 0;
+  QColor bg = _image->pixelColor(0, 0).toHsl();
+  for (int y = 0; y < img.height(); ++y) {
+    for (int x = 0; x < img.width(); ++x) {
+      QColor color = img.pixelColor(x, y).toHsl();
+      if (bg != color) {
+        i += color.lightness();
+        k++;
+      }
+    }
+  }
+  if (!k) k = 1;
+  return (((i / k) < bg.lightness()) ? true : false);
 }
 
 std::vector<double> Converter::convertDrawImg() {
@@ -92,13 +110,50 @@ std::vector<double> Converter::convertDrawImg() {
       _v.push_back(color.lightness() / 255.);
     }
   }
-  drawImg.save(QDir::homePath() + "/2.png", "png");
+  // drawImg.save(QDir::homePath() + "/2.png", "png");
   //        modified = false;
   return _v;
 }
 
 std::vector<double> Converter::convertLoadImg() {
   std::vector<double> _v;
+  _v.push_back(-1.);
+  QImage loadedImage =
+      _image->copy(findCropArea())
+          .scaled(28, 28, Qt::KeepAspectRatio, Qt::SmoothTransformation)
+          .transformed(QTransform().rotate(-90));
+  // loadedImage.save(QDir::homePath() + "/1L.png", "png");
+  if (isInvert(*_image))
+    loadedImage.invertPixels();
+  // loadedImage.save(QDir::homePath() + "/2L.png", "png");
+  QColor bg = loadedImage.pixelColor(0, 0).toHsl();
+  loadedImage.mirror(false);
+  if (loadedImage.width() > loadedImage.height() * 3)
+    rescaled(&loadedImage);
+  else
+    loadedImage = loadedImage.scaled(28, 28,
+                             Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  // loadedImage.save(QDir::homePath() + "/3L.png", "png");
+  for (int y = 0; y < loadedImage.height(); ++y) {
+    QDebug dbg(QtDebugMsg);
+    for (int x = 0; x < loadedImage.width(); ++x) {
+      QColor color = loadedImage.pixelColor(x, y).toHsl();
+      if (color == bg)
+        color = Qt::black;
+      else if (color.lightness() < 20)
+          color = color.lighter(1000);
+      loadedImage.setPixelColor(x, y, color);
+      _v.push_back(color.lightness() / 255.);
+    }
+  }
+    // loadedImage.save(QDir::homePath() + "/3.png", "png");
+  //        modified = false;
   return _v;
+}
+
+void Converter::intToString(int i) {
+  double f = i;
+  f /= 100.;
+  emit sendStr(QString::number(f, 'd', 2));
 }
 }  // namespace s21

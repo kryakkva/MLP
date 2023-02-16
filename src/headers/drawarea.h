@@ -5,6 +5,9 @@
 #include <QImage>
 #include <QPoint>
 #include <QtWidgets>
+#include <iostream>
+
+#include "converter.h"
 
 namespace s21 {
 
@@ -19,9 +22,10 @@ class DrawArea : public QWidget {
   double *openImage(const QString &fileName);
   void setPenWidth(int val);
   QRect findCropArea();
+  Converter *getConv();
 
  signals:
-  void sendPicture(QImage *);
+  void sendLetter(std::vector<double>);
 
  protected:
   void mousePressEvent(QMouseEvent *event) override;
@@ -30,16 +34,16 @@ class DrawArea : public QWidget {
   void paintEvent(QPaintEvent *event) override;
   //	void resizeEvent(QResizeEvent *event) override;
 
+ private slots:
+  void loadImage();
+
  private:
   void drawLineTo(const QPoint &endPoint);
   //	void resizeImage(QImage  *image, const QSize &newSize);
-  bool modified;
   bool scribling;
-  QColor myPenColor;
   QImage *image;
   QPoint lastPoint;
-  int myPenWidth;
-  int widthP;
+  Converter *_conv;
 };
 
 }  // namespace s21

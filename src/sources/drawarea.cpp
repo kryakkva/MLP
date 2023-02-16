@@ -4,17 +4,19 @@
 
 namespace s21 {
 DrawArea::DrawArea(QWidget *parent) : QWidget{parent} {
-  myPenColor = Qt::black;
-  myPenWidth = 14;
-  modified = false;
+  this->setGeometry(QRect(2, 2, 280, 280));
   scribling = false;
   image = new QImage(280, 280, QImage::Format_RGB32);
   image->fill(Qt::white);
+  _conv = new Converter(image);
   //  QPainter painter(&image);
   //  painter.drawImage(QPoint(0,0), image);
 }
 
-DrawArea::~DrawArea() noexcept { delete image; }
+DrawArea::~DrawArea() noexcept {
+  delete _conv;
+  delete image;
+}
 
 void DrawArea::mousePressEvent(QMouseEvent *event) {
   // if (modified == false){
@@ -39,7 +41,8 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *event) {
   if (event->button() == Qt::LeftButton && scribling) {
     drawLineTo(event->pos());
     scribling = false;
-    emit sendPicture(image);
+    image->save(QDir::homePath() + "/1.png", "png");
+    emit sendLetter(_conv->convertDrawImg());
   }
   update();
 }
@@ -53,15 +56,31 @@ void DrawArea::paintEvent(QPaintEvent *event) {
 void DrawArea::drawLineTo(const QPoint &endPoint) {
   QPainter painter(image);
   painter.setPen(
-      QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+      QPen(Qt::black, 14, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
   painter.drawPoint(lastPoint);
   painter.drawLine(lastPoint, endPoint);
-  modified = true;
   //  int rad = (myPenWidth / 3) + 3;
   //  update(QRect(lastPoint, endPoint).normalized().adjusted(-rad, -rad,
   //  +rad, +rad));
   update();
   lastPoint = endPoint;
+}
+
+void DrawArea::loadImage() {
+  QString fileName = QFileDialog::getOpenFileName(this,
+                                                  tr("OpenFile"),
+                                                  QDir::homePath(),
+                                                  tr("Images (*.png *.jpg)"));
+  if (!fileName.isEmpty()) {
+    QImage loadedImage;
+    loadedImage.load(fileName);
+    *image = loadedImage.scaled(280, 280);
+    emit sendLetter(_conv->convertLoadImg());
+  }
+}
+
+Converter *DrawArea::getConv() {
+  return _conv;
 }
 /*
 QRect DrawArea::findCropArea() {
@@ -208,13 +227,11 @@ double *DrawArea::openImage(const QString &fileName) {
         loadedImage.setPixelColor(x, y, color);
       } else {
         //					dbg << color.hue() <<
-        //color.saturation()
-        << color.lightness() << " | ";
-        if (color.lightness() < 20) color = color.lighter(1000);
+        //color.saturation() << color.lightness() << " | ";
+        if (color.lightness() < 20)
+          color = color.lighter(1000);
         // color.setHsl(color.hue(), color.saturation(), 255);
-//					loadedImage.setPixelColor(x, y,
-QColor::fromHsl(color.hue(), 0, color.lightness()).lighter(500));
-loadedImage.setPixelColor(x, y, color);
+		// 			loadedImage.setPixelColor(x, y, QColor::fromHsl(color.hue(), 0, color.lightness()).lighter(500));loadedImage.setPixelColor(x, y, color);
       }
       //				dbg << color.lightness();
       //				ret[num++] = color.lightness() / 255.;
@@ -229,10 +246,8 @@ loadedImage.setPixelColor(x, y, color);
   //				if (rgb == bg)
   //					rgb = qRgb(0, 0, 0);
   //				else{
-  //					QColor pix = loadedImage.pixelColor(x,
-y);
-//					pix.setHsl(120, pix.saturation(),
-pix.lightness());
+  //					QColor pix = loadedImage.pixelColor(x,y);
+//					pix.setHsl(120, pix.saturation(),pix.lightness());
 //					rgb = pix.rgb();
 //				}
 //				dbg << qGreen(rgb);

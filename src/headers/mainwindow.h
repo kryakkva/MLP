@@ -4,7 +4,6 @@
 #include <QMainWindow>
 
 #include "Network.h"
-#include "converter.h"
 #include "drawarea.h"
 #include "statecontroller.h"
 
@@ -24,16 +23,18 @@ class MainWindow : public QMainWindow {
 
  private:
   void signalSlotsConnect();
+  void setDrawArea();
  private slots:
-  void GetPicture(QImage *);
+  void predictLetter(std::vector<double>);
 
  signals:
-  void sendChar(const QString &);
+  void letterIs(const QString &);
+  void setInputLetter(std::vector<double>);
 
  private:
   Ui::View *_ui;
   DrawArea *_drawArea;
-  Network _net{};
+  Network *_net;
   data_Network _netConfig;
   StateController _state;
   // Converter *convert;
