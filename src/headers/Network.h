@@ -26,7 +26,7 @@ namespace s21 {
         double  *_neurons_bias_val;
     public:
         Network();
-        Network(int l);
+        Network(int l, int t, int e);
         ~Network();
 
         void InitMatrixNet();

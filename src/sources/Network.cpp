@@ -37,7 +37,7 @@ namespace s21 {
         _weights = new Matrix[_hidden + 1];
         _bias = new double *[_hidden + 1];
         for (int i = 0; i < _hidden + 1; i++) {
-            _weights[i] = Matrix(_layerSize[i], _layerSize[i + 1]);
+            _weights[i] = new Matrix(_layerSize[i], _layerSize[i + 1]);
             _bias[i] = new double [_layerSize[i + 1]];
             for (int j = 0; j < _layerSize[i + 1]; j++)
                 _bias[i][j] = ((rand() % 50)) * 0.06 / (_layerSize[i] + 21);
@@ -64,6 +64,7 @@ namespace s21 {
         int index = 0;
         int ra = 0;
         for (size_t i = 0; i < data.getIns(d).size(); i++) {
+            SetInput(*data.getIns(d)[i]);
             if (!_typeNet) {
                 index = ForwardFeed();
                 if (d == WORK)
