@@ -5,8 +5,7 @@
 #ifndef MLP_NETWORK_H
 #define MLP_NETWORK_H
 
-#include "./Matrix.h"
-#include "./Dataset.h"
+#include "../headers/Matrix.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -14,26 +13,29 @@
 namespace s21 {
     class Network {
     private:
-        int _typeNet = 0;
+        int _typeNet;
         int _hidden = 2;
         int _epoch = 10;
-        int _maxra = 0;
+        double _maxra;
         std::vector<int> _layerSize;
         ActivateFunction    _actFunc;
         Matrix  *_weights;
-        double  **_bias;
+//        std::vector<std::vector<double>>  _bias;
+        double **_bias;
         double  **_neurons_val, **_neurons_err;
-        double  *_neurons_bias_val;
+//        double  *_neurons_bias_val;
     public:
+        std::vector<std::vector<double>> _vector_train;
+        std::vector<std::vector<double>> _vector_test;
         Network();
-        Network(int l, int t, int e);
         ~Network();
 
         void InitMatrixNet();
-        void SetInput(std::vector<double> values);
+        void SetInput(std::vector<double> values, int fl = 1);
 
-        int NetWorkMain(const Dataset& data, Datatype d);
-        int ForwardFeed();
+        double NetworkTest(std::vector<std::vector<double>> value);
+        double NetworkTrain(std::vector<std::vector<double>> value);
+        double ForwardFeed();
         int SearchMaxIndex(double *value);
 
         void BackPropogation(double expect);
@@ -42,11 +44,13 @@ namespace s21 {
         void SaveWeights_M(std::string filename);
         void ReadWeights_M(std::string filename);
 
+        std::vector<std::vector<double>> ReadData(std::string filename);
+
+        int getEpoch();
         void setTypeNet(int n);
         void setLayer(int n);
         void setEpoch(int n);
-
-//        void ClearLeaks();
+        int getMaxra();
     };
 } // s21
 

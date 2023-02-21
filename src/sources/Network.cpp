@@ -7,18 +7,6 @@
 namespace s21 {
     Network::Network() {}
 
-    Network::Network(int l, int t, int e) {
-        _hidden = l;
-        _typeNet = t;
-        _epoch = e;
-        _layerSize.push_back(784);
-        for (int i = 0; i < _hidden; i++)
-            _layerSize.push_back(150);
-        _layerSize.push_back(26);
-        if (!_typeNet)
-            InitMatrixNet();
-    }
-
     Network::~Network() {
         for (int i = 0; i < _hidden + 2; i++) {
             delete [] _neurons_val[i];
@@ -26,19 +14,29 @@ namespace s21 {
         }
         delete [] _neurons_val;
         delete [] _neurons_err;
-        delete [] _neurons_bias_val;
+//        delete [] _neurons_bias_val;
         for (int i = 0; i < _hidden + 1; i++)
             delete [] _bias[i];
         delete [] _bias;
-//        delete [] _weights;
+        for (int i = 0; i < _hidden + 1; i++)
+            _weights[i].ClearLeaks(_layerSize[i + 1]);
+        delete [] _weights;
     };
 
     void Network::InitMatrixNet() {
+        _typeNet = 0;
+        _layerSize.push_back(784);
+        for (int i = 0; i < _hidden; i++)
+            _layerSize.push_back(150);
+        _layerSize.push_back(26);
+        srand(time(NULL));
         _weights = new Matrix[_hidden + 1];
         _bias = new double *[_hidden + 1];
+//        _bias.resize(_hidden + 1);
         for (int i = 0; i < _hidden + 1; i++) {
-            _weights[i] = new Matrix(_layerSize[i], _layerSize[i + 1]);
+            _weights[i].MatrixInit(_layerSize[i + 1], _layerSize[i]);
             _bias[i] = new double [_layerSize[i + 1]];
+//            _bias[i].resize(_layerSize[i + 1], ((rand() % 50)) * 0.06 / (_layerSize[i] + 21));
             for (int j = 0; j < _layerSize[i + 1]; j++)
                 _bias[i][j] = ((rand() % 50)) * 0.06 / (_layerSize[i] + 21);
         }
@@ -48,51 +46,57 @@ namespace s21 {
             _neurons_val[i] = new double [_layerSize[i]];
             _neurons_err[i] = new double [_layerSize[i]];
         }
-        _neurons_bias_val = new double[_hidden + 1];
-        for (int i = 0; i < _hidden + 1; i++)
-            _neurons_bias_val[i] = 1;
+//        _neurons_bias_val = new double[_hidden + 1];
+//        for (int i = 0; i < _hidden + 1; i++)
+//            _neurons_bias_val[i] = 1;
     }
 
-    void Network::SetInput(std::vector<double> values) {
+    void Network::SetInput(std::vector<double> values, int fl) {
         if (!_typeNet) {
-            for (int i = 1; i < _layerSize[0]; i++)
-                _neurons_val[0][i] = values[i];
+            for (int i = 0; i < values.size(); i++)
+                _neurons_val[0][i] = values[i + fl];
         }
     }
 
-    int Network::NetWorkMain(const Dataset &data, Datatype d) {
-        int index = 0;
-        int ra = 0;
-        for (size_t i = 0; i < data.getIns(d).size(); i++) {
-            SetInput(*data.getIns(d)[i]);
-            if (!_typeNet) {
-                index = ForwardFeed();
-                if (d == WORK)
-                    return (index);
-                else if (d == TRAIN) {
-                    if (index != (*data.getIns(d)[i]->begin())) {
-                        BackPropogation(index - 1);
-                        WeightsUpdater(2.1 * pow(2.1, -_epoch / 10.));
-                    }
-                    else
-                        ra++;
-                }
-                else if (d == TEST)
-                    ra++;
-            }
+    double Network::NetworkTest(std::vector<std::vector<double>> value) {
+        double ra = 0;
+        double right;
+        double predict;
+        for (int i = 0; i < value.size(); ++i) {
+            SetInput(value[i]);
+            predict = ForwardFeed();
+            right = value[i][0];
+            if (right == predict)
+                ra++;
         }
-        if (ra > _maxra)
-            _maxra = ra;
         return (ra);
     }
 
-    int Network::ForwardFeed() {
+    double Network::NetworkTrain(std::vector<std::vector<double>> value) {
+        double ra = 0;
+        double right;
+        double predict;
+        for (int i = 0; i < value.size(); ++i) {
+            SetInput(value[i]);
+            predict = ForwardFeed();
+            right = value[i][0];
+            if (right != predict) {
+                BackPropogation(right);
+                WeightsUpdater(2.1 * pow(2.1, -_epoch / 10.));
+            }
+            else
+                ra++;
+        }
+        return (ra);
+    }
+
+    double Network::ForwardFeed() {
         for (int i = 1; i < _hidden + 2; ++i) {
             Matrix::Multi(_weights[i - 1], _neurons_val[i - 1], _layerSize[i - 1], _neurons_val[i]);
             Matrix::SumVector(_neurons_val[i], _bias[i - 1], _layerSize[i]);
             _actFunc.Use(_neurons_val[i], _layerSize[i]);
         }
-        int pred = SearchMaxIndex(_neurons_val[_hidden + 1]);
+        double pred = SearchMaxIndex(_neurons_val[_hidden + 1]);
         return pred;
     }
 
@@ -112,7 +116,7 @@ namespace s21 {
 
     void Network::BackPropogation(double expect) {
         for (int i = 0; i < _layerSize[_hidden + 1]; i++) {
-            if (i != int(expect))
+            if (i != int(expect - 1))
                 _neurons_err[_hidden + 1][i] = -_neurons_val[_hidden + 1][i] * _actFunc.UseDer(_neurons_val[_hidden + 1][i]);
             else
                 _neurons_err[_hidden + 1][i] = (1.0 - _neurons_val[_hidden + 1][i]) * _actFunc.UseDer(_neurons_val[_hidden + 1][i]);
@@ -143,7 +147,7 @@ namespace s21 {
             exit(0);
         }
         fout << "This is weights file" << std::endl;
-        for (int i = 0; i < _hidden + 1; ++i)
+        for (int i = 0; i < _hidden + 2; ++i)
             fout << _layerSize[i] << " ";
         fout << std::endl;
         for (int x = 0; x < _hidden + 1; ++x)
@@ -190,45 +194,73 @@ namespace s21 {
             printf("Wrong in file\n");
             exit(0);
         }
-        std::vector<std::vector<std::vector<double>>> mass(_layerSize.size());
         for (int x = 0; x < _hidden + 1; ++x) {
             multi = line[x] * line[x + 1];
-            mass[x].resize(line[x + 1]);
-            for (int i = 0; i < line[x]; ++i) {
-                mass[x][i].resize(line[x], 0);
+            for (int i = 0; i < line[x + 1]; ++i) {
             }
             int coun = 0;
-            for (int i = 0; i < _weights->getRow(); ++i) {
-                for (int j = 0; j < _weights->getCol(); ++j) {
-                    fin >> mass[x][i][j];
+            fin >> _weights[x];
+            for (int i = 0; i < _weights[x].getRow(); ++i) {
+                for (int j = 0; j < _weights[x].getCol(); ++j) {
                     coun++;
-                    if (mass[x][i][j] < -1 || mass[x][i][j] > 1) {
-                        printf("Number is not a weight!!!\n");
-                        exit(0);
-                    }
                     if (fin.eof())
                         break;
                 }
                 if (fin.eof())
                     break;
             }
+
             if (coun != multi) {
                 printf("Amount of number is wrong!!!\n");
                 exit(0);
             }
         }
-        if (!_typeNet) {
-            for (int x = 0; x < _hidden + 1; ++x)
-                _weights[x].setMatrix(mass[x]);
-        }
+        for (int i = 0; i < _hidden + 1; ++i)
+            for (int j = 0; j < _layerSize[i + 1]; ++j)
+                fin >> _bias[i][j];
+
         std::cout << filename << " readed \n";;
         fin.close();
     }
+
+    std::vector<std::vector<double>> Network::ReadData(std::string filename) {
+        std::vector<std::vector<double>> _vect;
+        std::ifstream fin(filename);
+        if (!fin.is_open())
+            std::cout << "Error reading file" << filename << std::endl;
+        else
+            std::cout << filename << " loading...\n";
+        std::string tmp;
+        bool first;
+        while (!fin.eof()) {
+            std::getline(fin, tmp);
+            std::istringstream input;
+            input.str(tmp.c_str());
+            first = true;
+            std::vector<double> _number;
+            for (std::string num; std::getline(input, num, ',');) {
+                if (first) {
+                    _number.push_back(stoi(num));
+                    first = false;
+                } else
+                    _number.push_back(stoi(num) / 255.);
+            }
+            if (tmp != "")
+                _vect.push_back(_number);
+        }
+        fin.close();
+        std::cout << "MNIST loaded... \n";
+        return _vect;
+    }
+
+    int Network::getEpoch() {return _epoch;}
 
     void Network::setTypeNet(int n) {_typeNet = n;}
 
     void Network::setLayer(int n) {_hidden = n;}
 
-    void Network::setEpoch(int n) {_epoch = n;};
+    void Network::setEpoch(int n) {_epoch = n;}
+
+    int Network::getMaxra() {return _maxra;}
 
  } // s21

@@ -5,7 +5,7 @@
 #ifndef MLP_MATRIX_H
 #define MLP_MATRIX_H
 
-#include "./ActivateFunction.h"
+#include "../headers/ActivateFunction.h"
 #include <vector>
 
 namespace s21 {
@@ -16,10 +16,11 @@ namespace s21 {
     public:
         Matrix();
         ~Matrix();
-        Matrix(int row, int col);
+        void MatrixInit(int row, int col);
         static void Multi(const Matrix &m, const double *neuron, int n, double *neuron_new);
         static void Multi_T(const Matrix &m, const double *neuron, int n, double *neuron_new);
         static void SumVector(double *a, const double *b, int n);
+//        static void SumVector(double *a, std::vector<double> b, int n);
         double &operator () (int i, int j);
 
         friend std::ostream &operator << (std::ostream &os, const Matrix &m);
@@ -27,7 +28,7 @@ namespace s21 {
         int getCol();
         int getRow();
         double** getMatrix();
-        void setMatrix(std::vector<std::vector<double>>& m);
+        void ClearLeaks(int row);
     };
 } // s21
 

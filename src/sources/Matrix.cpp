@@ -8,20 +8,19 @@ namespace s21 {
     Matrix::Matrix() {}
 
     Matrix::~Matrix() {
-        for (int i = 0; i < _row; i++)
-            delete [] _matrix[i];
         delete [] _matrix;
     }
 
-    Matrix::Matrix(int row, int col) {
+    void Matrix::MatrixInit(int row, int col) {
         this->_row = row;
         this->_col = col;
         _matrix = new double *[_row];
         for (int i = 0; i < _row; i++)
             _matrix[i] = new double [_col];
         for (int i = 0; i < _row; i++)
-            for (int j = 0; j < _col; j++)
+            for (int j = 0; j < _col; j++) {
                 _matrix[i][j] = (rand() % 100) * 0.03 / (_row + 21);
+            }
     }
 
     void Matrix::Multi(const Matrix &m, const double *neuron, int n, double *neuron_new) {
@@ -47,6 +46,7 @@ namespace s21 {
     }
 
     void Matrix::SumVector(double *a, const double *b, int n) {
+//    void Matrix::SumVector(double *a, std::vector<double> b, int n) {
         for (int i = 0; i < n; ++i)
             a[i] += b[i];
     }
@@ -75,10 +75,9 @@ namespace s21 {
 
     double** Matrix::getMatrix() {return _matrix;}
 
-    void Matrix::setMatrix(std::vector<std::vector<double>>& m) {
-        for (int i = 0; i < this->_row; ++i)
-            for (int j = 0; j < this->_col; ++j)
-                _matrix[i][j] = m[i][j];
+    void Matrix::ClearLeaks(int row_) {
+        for (int i = 0; i < row_; i++)
+            delete [] _matrix[i];
     }
 
  } // s21
