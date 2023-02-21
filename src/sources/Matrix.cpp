@@ -7,9 +7,7 @@
 namespace s21 {
     Matrix::Matrix() {}
 
-    Matrix::~Matrix() {
-        delete [] _matrix;
-    }
+    Matrix::~Matrix() {}
 
     void Matrix::MatrixInit(int row, int col) {
         this->_row = row;
@@ -46,7 +44,6 @@ namespace s21 {
     }
 
     void Matrix::SumVector(double *a, const double *b, int n) {
-//    void Matrix::SumVector(double *a, std::vector<double> b, int n) {
         for (int i = 0; i < n; ++i)
             a[i] += b[i];
     }
@@ -78,6 +75,7 @@ namespace s21 {
     void Matrix::ClearLeaks(int row_) {
         for (int i = 0; i < row_; i++)
             delete [] _matrix[i];
+        delete [] _matrix;
     }
 
  } // s21

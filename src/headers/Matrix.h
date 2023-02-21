@@ -20,7 +20,6 @@ namespace s21 {
         static void Multi(const Matrix &m, const double *neuron, int n, double *neuron_new);
         static void Multi_T(const Matrix &m, const double *neuron, int n, double *neuron_new);
         static void SumVector(double *a, const double *b, int n);
-//        static void SumVector(double *a, std::vector<double> b, int n);
         double &operator () (int i, int j);
 
         friend std::ostream &operator << (std::ostream &os, const Matrix &m);

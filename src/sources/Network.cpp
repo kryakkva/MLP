@@ -5,7 +5,9 @@
 #include "../headers/Network.h"
 
 namespace s21 {
-    Network::Network() {}
+    Network::Network() : _hidden(2), _epoch(10), _typeNet(0) {
+        initNet();
+    }
 
     Network::~Network() {
         for (int i = 0; i < _hidden + 2; i++) {
@@ -14,17 +16,16 @@ namespace s21 {
         }
         delete [] _neurons_val;
         delete [] _neurons_err;
-//        delete [] _neurons_bias_val;
         for (int i = 0; i < _hidden + 1; i++)
             delete [] _bias[i];
         delete [] _bias;
         for (int i = 0; i < _hidden + 1; i++)
             _weights[i].ClearLeaks(_layerSize[i + 1]);
         delete [] _weights;
-    };
+    }
 
-    void Network::InitMatrixNet() {
-        _typeNet = 0;
+    void Network::initNet() {
+        _maxRa = 0;
         _layerSize.push_back(784);
         for (int i = 0; i < _hidden; i++)
             _layerSize.push_back(150);
@@ -32,11 +33,9 @@ namespace s21 {
         srand(time(NULL));
         _weights = new Matrix[_hidden + 1];
         _bias = new double *[_hidden + 1];
-//        _bias.resize(_hidden + 1);
         for (int i = 0; i < _hidden + 1; i++) {
             _weights[i].MatrixInit(_layerSize[i + 1], _layerSize[i]);
             _bias[i] = new double [_layerSize[i + 1]];
-//            _bias[i].resize(_layerSize[i + 1], ((rand() % 50)) * 0.06 / (_layerSize[i] + 21));
             for (int j = 0; j < _layerSize[i + 1]; j++)
                 _bias[i][j] = ((rand() % 50)) * 0.06 / (_layerSize[i] + 21);
         }
@@ -46,9 +45,12 @@ namespace s21 {
             _neurons_val[i] = new double [_layerSize[i]];
             _neurons_err[i] = new double [_layerSize[i]];
         }
-//        _neurons_bias_val = new double[_hidden + 1];
-//        for (int i = 0; i < _hidden + 1; i++)
-//            _neurons_bias_val[i] = 1;
+    }
+
+    void Network::reInitNet(int l) {
+        destroyNet();
+        setLayer(l);
+        initNet();
     }
 
     void Network::SetInput(std::vector<double> values, int fl) {
@@ -61,7 +63,7 @@ namespace s21 {
     double Network::NetworkTest(std::vector<std::vector<double>> value) {
         double ra = 0;
         double right;
-        double predict;
+        int predict;
         for (int i = 0; i < value.size(); ++i) {
             SetInput(value[i]);
             predict = ForwardFeed();
@@ -75,7 +77,9 @@ namespace s21 {
     double Network::NetworkTrain(std::vector<std::vector<double>> value) {
         double ra = 0;
         double right;
-        double predict;
+        int predict;
+
+        auto t1 = std::chrono::steady_clock::now();
         for (int i = 0; i < value.size(); ++i) {
             SetInput(value[i]);
             predict = ForwardFeed();
@@ -87,16 +91,20 @@ namespace s21 {
             else
                 ra++;
         }
+        auto t2 = std::chrono::steady_clock::now();
+        _time = t2 - t1;
+        if (ra > _maxRa)
+            _maxRa = ra;
         return (ra);
     }
 
-    double Network::ForwardFeed() {
+    int Network::ForwardFeed() {
         for (int i = 1; i < _hidden + 2; ++i) {
             Matrix::Multi(_weights[i - 1], _neurons_val[i - 1], _layerSize[i - 1], _neurons_val[i]);
             Matrix::SumVector(_neurons_val[i], _bias[i - 1], _layerSize[i]);
             _actFunc.Use(_neurons_val[i], _layerSize[i]);
         }
-        double pred = SearchMaxIndex(_neurons_val[_hidden + 1]);
+        int pred = SearchMaxIndex(_neurons_val[_hidden + 1]);
         return pred;
     }
 
@@ -253,6 +261,21 @@ namespace s21 {
         return _vect;
     }
 
+    void Network::destroyNet() {
+        for (int i = 0; i < _hidden + 2; i++) {
+            delete [] _neurons_val[i];
+            delete [] _neurons_err[i];
+        }
+        delete [] _neurons_val;
+        delete [] _neurons_err;
+        for (int i = 0; i < _hidden + 1; i++)
+            delete [] _bias[i];
+        delete [] _bias;
+        for (int i = 0; i < _hidden + 1; i++)
+            _weights[i].ClearLeaks(_layerSize[i + 1]);
+        delete [] _weights;
+    }
+
     int Network::getEpoch() {return _epoch;}
 
     void Network::setTypeNet(int n) {_typeNet = n;}
@@ -261,6 +284,8 @@ namespace s21 {
 
     void Network::setEpoch(int n) {_epoch = n;}
 
-    int Network::getMaxra() {return _maxra;}
+    double Network::getMaxRa() {return _maxRa;}
+
+    std::chrono::duration<double> Network::getTime() {return _time;}
 
  } // s21
