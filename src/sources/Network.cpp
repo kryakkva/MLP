@@ -26,6 +26,7 @@ namespace s21 {
 
     void Network::initNet() {
         _maxRa = 0;
+        _counter = 0;
         _layerSize.push_back(784);
         for (int i = 0; i < _hidden; i++)
             _layerSize.push_back(150);
@@ -86,13 +87,14 @@ namespace s21 {
             right = value[i][0];
             if (right != predict) {
                 BackPropogation(right);
-                WeightsUpdater(2.1 * pow(2.1, -_epoch / 10.));
+                WeightsUpdater(2.1 * pow(2.1, -_counter / 10.));
             }
             else
                 ra++;
         }
         auto t2 = std::chrono::steady_clock::now();
         _time = t2 - t1;
+        _counter++;
         if (ra > _maxRa)
             _maxRa = ra;
         return (ra);
@@ -156,7 +158,7 @@ namespace s21 {
         }
         fout << "This is weights file" << std::endl;
         for (int i = 0; i < _hidden + 2; ++i)
-            fout << _layerSize[i] << " ";
+            fout << " " << _layerSize[i];
         fout << std::endl;
         for (int x = 0; x < _hidden + 1; ++x)
             fout << _weights[x] << " ";
@@ -171,7 +173,6 @@ namespace s21 {
     void Network::ReadWeights_M(std::string filename) {
         std::ifstream           fin;
         fin.open(filename);
-        int multi;
         if (!fin.is_open()) {
             std::cout << "Error reading file " << filename << std::endl;
             exit(0);
@@ -184,48 +185,43 @@ namespace s21 {
         }
         std::vector<int> line;
         double num;
-        fin >> num;
-        if (num - static_cast<int>(num) != 0) {
-            printf("Wrong in file\n");
-            exit(0);
-        }
-        line.push_back(static_cast<int>(num));
         while (fin.get() != '\n') {
             fin >> num;
             if (num - (int)num != 0) {
-                printf("Wrong in file\n");
+                printf("Wrong in file 2\n");
                 exit(0);
             }
             line.push_back(static_cast<int>(num));
         }
+
         if (_hidden + 2 != line.size()) {
-            printf("Wrong in file\n");
+            printf("Wrong in file 3\n");
             exit(0);
         }
+        int multi = 0;
+        int count = 0;
         for (int x = 0; x < _hidden + 1; ++x) {
-            multi = line[x] * line[x + 1];
-            for (int i = 0; i < line[x + 1]; ++i) {
-            }
-            int coun = 0;
-            fin >> _weights[x];
-            for (int i = 0; i < _weights[x].getRow(); ++i) {
-                for (int j = 0; j < _weights[x].getCol(); ++j) {
-                    coun++;
-                    if (fin.eof())
-                        break;
-                }
-                if (fin.eof())
-                    break;
-            }
-
-            if (coun != multi) {
-                printf("Amount of number is wrong!!!\n");
-                exit(0);
+            multi += (line[x] * line[x + 1]);
+            for (int i = 0; i < _weights[x].getRow(); ++i)
+                for (int j = 0; j < _weights[x].getCol(); ++j, count++)
+                    fin >> _weights[x](i, j);
+        }
+        for (int i = 0; i < _hidden + 1; ++i) {
+            multi += line[i + 1];
+            for (int j = 0; j < _layerSize[i + 1]; ++j) {
+                fin >> _bias[i][j];
+            if (!fin.eof())
+                count++;
             }
         }
-        for (int i = 0; i < _hidden + 1; ++i)
-            for (int j = 0; j < _layerSize[i + 1]; ++j)
-                fin >> _bias[i][j];
+        double temp;
+        fin >> temp;
+        if (!fin.eof())
+            count++;
+        if (count != multi) {
+            printf("Amount of number is wrong!!!\n");
+            exit(0);
+        }
 
         std::cout << filename << " readed \n";;
         fin.close();

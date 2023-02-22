@@ -16,6 +16,7 @@ namespace s21 {
         int _typeNet;
         int _hidden;
         int _epoch;
+        int _counter;
         double _maxRa;
         std::vector<int> _layerSize;
         ActivateFunction    _actFunc;
