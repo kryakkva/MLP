@@ -17,56 +17,101 @@ static void printVector(std::vector<double> &_v) {
   std::cout << std::endl;
 }
 
-static data_Network ReadDataNetwork() {
-  data_Network data{};
-  std::string tmp;
-  data.L = 4;
-  data.size = new int[4];
-  data.size[0] = 784;
-  data.size[1] = 150;
-  data.size[2] = 150;
-  // data.size[3] = 150;
-  data.size[3] = 26;
-  return data;
-}
-
-void MainWindow::signalSlotsConnect(){
-  connect(this, SIGNAL(letterIs(const QString &)),
-          _ui->letterLabel, SLOT(setText(const QString &)));
-  connect(this, SIGNAL(setInputLetter(std::vector<double>)),
-          _net, SLOT(SetInput(std::vector<double>)));
-  connect(_ui->layersDial, SIGNAL(valueChanged(int)),
-          _ui->lcdNumber, SLOT(display(int)));
-  connect(_ui->testScrollBar, SIGNAL(valueChanged(int)),
-          _drawArea->getConv(), SLOT(intToString(int)));
-  connect(_drawArea->getConv(), SIGNAL(sendStr(const QString &)),
-          _ui->testPartLabel,SLOT(setText(const QString &)));
-  connect(_ui->crossValidationCheckBox, SIGNAL(stateChanged(int)),
-          this, SLOT(crossValidKgroup(int)));
+void MainWindow::SignalSlotsConnect(){
+  connect(this, SIGNAL(LetterIs(const QString &)),
+          view_->letterLabel, SLOT(setText(const QString &)));
+  connect(view_->layersDial, SIGNAL(valueChanged(int)),
+          view_->lcdNumber, SLOT(display(int)));
+  connect(view_->testScrollBar, SIGNAL(valueChanged(int)),
+          draw_area_->getConv(), SLOT(intToString(int)));
+  connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),
+          view_->testPartLabel, SLOT(setText(const QString &)));
+  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),
+          view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(readMessage(std::string)), messages_, SLOT(readingFile(std::string)));
+  connect(this, SIGNAL(readFile(std::string, testTrain)), model_, SLOT(ReadData(std::string, testTrain)));
+  connect(model_, SIGNAL(updateBar(int)), messages_, SLOT(updateBarVal(int)));
+  connect(view_->trainButton, SIGNAL(pressed()), model_, SLOT(NetworkTrain()));
+  connect(model_, SIGNAL(openTrainFile()), this, SLOT(openTrainFile()));
+  connect(model_, SIGNAL(trainMessage()), messages_, SLOT(train()));
+  connect(model_, SIGNAL(iAmReady()), messages_, SLOT(modelReady()));
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), _ui(new Ui::View), _net(new Network()) {
-  _ui->setupUi(this);
-  setDrawArea();
-  signalSlotsConnect();
+    : QMainWindow(parent), view_(new Ui::View), model_(new Network()), messages_(new Messages(*model_ )) {
+  view_->setupUi(this);
+  SetDrawArea();
+  SignalSlotsConnect();
+  thr_model_ = new QThread(this);
+  model_->moveToThread(thr_model_);
+  thr_model_->start(QThread::NormalPriority);
 }
 
 MainWindow::~MainWindow() {
-  delete _drawArea;
-  delete _ui;
-  delete _net;
-  // delete convert;
+  thr_model_->quit();
+  thr_model_->deleteLater();
+  delete draw_area_;
+  delete view_;
+  delete model_;
+  delete messages_;
 }
 
-void MainWindow::setDrawArea() {
-  _drawArea = new DrawArea(_ui->frame);
-  connect(_drawArea, SIGNAL(sendLetter(std::vector<double>)),
-          this, SLOT(predictLetter(std::vector<double>)));
-  connect(_ui->loadImageButton, SIGNAL(pressed()),
-          _drawArea, SLOT(loadImage()));
+void MainWindow::SetDrawArea() {
+  draw_area_ = new DrawArea(view_->frame);
+  connect(draw_area_, SIGNAL(SendLetter(std::vector<double>)),
+          this, SLOT(PredictLetter(std::vector<double>)));
+  connect(view_->loadImageButton, SIGNAL(pressed()),
+          draw_area_, SLOT(LoadImage()));
 }
 
+void MainWindow::PredictLetter(std::vector<double> v) {
+  model_->SetInput(v, 0);
+  LetterIs(QString(QChar(model_->ForwardFeed() + 64)));
+  // printVector(_v);
+  // img.save(QDir::homePath() + "/3.png", "png");
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+  event->accept();
+}
+
+
+void MainWindow::on_load_btn_clicked()
+{
+  QString file_name = QFileDialog::getOpenFileName(this,
+                                                             tr("OpenFile"),
+                                                             QDir::homePath(),
+                                                             tr("Train (*.csv)"));
+  if (!file_name.isEmpty())
+    emit readFile(file_name.toStdString(), train_);
+  // emit readMessage();
+  // msg.exec();
+  // model_->ReadData(file_name.toStdString());
+}
+
+void MainWindow::openTrainFile() {
+  QString file_name = QFileDialog::getOpenFileName(this,
+                                                   tr("OpenFile"),
+                                                   QDir::homePath(),
+                                                   tr("Train (*.csv)"));
+  if (!file_name.isEmpty())
+      emit readFile(file_name.toStdString(), train_);
+}
+
+
+void MainWindow::on_spinBox_valueChanged(int arg1)
+{
+  model_->setEpoch(arg1);
+}
+
+
+void MainWindow::on_layersDial_sliderReleased()
+{
+  model_->reInitNet(view_->lcdNumber->intValue());
+}
+
+/*
 void MainWindow::initMlp() {
   // QDialog dialog(this);
   // dialog.resize(300, 200);
@@ -122,36 +167,17 @@ void MainWindow::initMlp() {
       }
       // QDir().mkdir("../MyFolder");
       // QString fileName = QFileDialog::getOpenFileName(this, tr("OpenFile"),
-      //                                                 QDir::homePath()/*, tr("Images (*.png *.jpg)")*/);
+      //                                                 QDir::homePath(), tr("Images (*.png *.jpg)"));
       // QString name = "/Users/yarik/MyProjects/MLP/src_data";
       // QString name = "../weights";
     }
   }
   _netConfig = ReadDataNetwork();
-  _net->Init(_netConfig);
+  model_->Init(_netConfig);
   QString str = dir.absolutePath() + "/weights";
-  _net->ReadWeights(str.toStdString());
-  // _net.ReadWeights(folderName.toStdString());
+  model_->ReadWeights(str.toStdString());
+  // model_.ReadWeights(folderName.toStdString());
   delete [] _netConfig.size;
 }
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-  _net->ClearLeaks();
-  event->accept();
-  // } else {
-  //   event->ignore();
-  // }
-}
-
-void MainWindow::predictLetter(std::vector<double> _v) {
-  emit setInputLetter(_v);
-  letterIs(QString(QChar(_net->ForwardFeed() + 64)));
-  // printVector(_v);
-  // img.save(QDir::homePath() + "/3.png", "png");
-}
-
-void MainWindow::crossValidKgroup(int i) {
-  _ui->kGroupsSpinBox->setEnabled(i);
-}
+*/
 }  // namespace s21

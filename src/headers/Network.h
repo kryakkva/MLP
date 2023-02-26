@@ -5,13 +5,20 @@
 #ifndef MLP_NETWORK_H
 #define MLP_NETWORK_H
 
+#include <QWidget>
+#include <QMessageBox>
 #include "../headers/Matrix.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
 
 namespace s21 {
-    class Network {
+enum testTrain {
+  test_ = 0,
+  train_
+};
+    class Network : public QObject {
+      Q_OBJECT
     private:
         int _typeNet;
         int _hidden;
@@ -24,29 +31,40 @@ namespace s21 {
         double **_bias;
         double  **_neurons_val, **_neurons_err;
         std::chrono::duration<double> _time;
-
         void initNet();
-    public:
-        std::vector<std::vector<double>> _vector_train;
-        std::vector<std::vector<double>> _vector_test;
-        Network();
-        ~Network();
+        bool break_;
+        bool ready_;
+     private slots:
+      // double NetworkTrain(std::vector<std::vector<double>> value);
+      void NetworkTrain();
 
-        void reInitNet(int l);
-        void SetInput(std::vector<double> values, int fl = 1);
+      std::vector<std::vector<double>> ReadData(std::string filename, testTrain v);
+     signals:
+      void updateBar(int i);
+      void readMessage(std::string str);
+      void trainMessage();
+      void openTrainFile();
+      void iAmReady();
+     public:
+      std::vector<std::vector<double>> _vector_train;
+      std::vector<std::vector<double>> _vector_test;
+      Network(QObject *parent = nullptr);
 
-        double NetworkTest(std::vector<std::vector<double>> value);
-        double NetworkTrain(std::vector<std::vector<double>> value);
-        int ForwardFeed();
+      void setBreak(bool b);
+      ~Network();
+
+      void reInitNet(int l);
+      void SetInput(std::vector<double> values, int fl = 1);
+      double NetworkTest(std::vector<std::vector<double>> value);
+      int ForwardFeed();
+
         int SearchMaxIndex(double *value);
+      void BackPropogation(double expect);
 
-        void BackPropogation(double expect);
         void WeightsUpdater(double lr);
+      void SaveWeights_M(std::string filename);
 
-        void SaveWeights_M(std::string filename);
         void ReadWeights_M(std::string filename);
-
-        std::vector<std::vector<double>> ReadData(std::string filename);
         void destroyNet();
 
         int getEpoch();
@@ -54,6 +72,7 @@ namespace s21 {
         void setLayer(int n);
         void setEpoch(int n);
         double getMaxRa();
+      bool getReady() {return ready_;}
         std::chrono::duration<double> getTime();
     };
 } // s21

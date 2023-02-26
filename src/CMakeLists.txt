@@ -36,7 +36,7 @@ set(SOURCES
         sources/Network.cpp
         sources/drawarea.cpp
         sources/converter.cpp
-        sources/statecontroller.cpp
+        sources/messages.cpp
         )
 
 set(HEADERS
@@ -46,18 +46,19 @@ set(HEADERS
         headers/Network.h
         headers/drawarea.h
         headers/converter.h
-        headers/statecontroller.h
+        headers/messages.h
         )
 
 set(FORMS
         forms/view.ui
+        forms/messages.ui
 )
 
 set(PROJECT_SOURCES
         ${SOURCES}
         ${HEADERS}
         ${FORMS}
-        )
+        headers/StateMessage.cpp headers/StateMessage.h)
 
 if (APPLE)
   set(MACOSX_BUNDLE_ICON_FILE neuro_.png)

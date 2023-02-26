@@ -17,15 +17,15 @@ class DrawArea : public QWidget {
  public:
   explicit DrawArea(QWidget *parent = nullptr);
   ~DrawArea() noexcept;
-  //	bool saveImage(const QString &fileName, const char *fileFormat);
-  double *saveImage();
-  double *openImage(const QString &fileName);
-  void setPenWidth(int val);
-  QRect findCropArea();
+  //	bool SaveImage(const QString &fileName, const char *fileFormat);
+  double *SaveImage();
+  double *OpenImage(const QString &fileName);
+  void SetPenWidth(int val);
+  QRect FindCropArea();
   Converter *getConv();
 
  signals:
-  void sendLetter(std::vector<double>);
+  void SendLetter(std::vector<double>);
 
  protected:
   void mousePressEvent(QMouseEvent *event) override;
@@ -35,15 +35,15 @@ class DrawArea : public QWidget {
   //	void resizeEvent(QResizeEvent *event) override;
 
  private slots:
-  void loadImage();
+  void LoadImage();
 
  private:
-  void drawLineTo(const QPoint &endPoint);
-  //	void resizeImage(QImage  *image, const QSize &newSize);
-  bool scribling;
-  QImage *image;
-  QPoint lastPoint;
-  Converter *_conv;
+  void DrawLineTo(const QPoint &endPoint);
+  //	void resizeImage(QImage  *image_, const QSize &newSize);
+  bool scribling_;
+  QImage *image_;
+  QPoint last_point_;
+  Converter *conv_;
 };
 
 }  // namespace s21

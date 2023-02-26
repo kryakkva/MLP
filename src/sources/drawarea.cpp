@@ -5,44 +5,44 @@
 namespace s21 {
 DrawArea::DrawArea(QWidget *parent) : QWidget{parent} {
   this->setGeometry(QRect(2, 2, 280, 280));
-  scribling = false;
-  image = new QImage(280, 280, QImage::Format_RGB32);
-  image->fill(Qt::white);
-  _conv = new Converter(image);
-  //  QPainter painter(&image);
-  //  painter.drawImage(QPoint(0,0), image);
+  scribling_ = false;
+  image_ = new QImage(280, 280, QImage::Format_RGB32);
+  image_->fill(Qt::white);
+  conv_ = new Converter(image_);
+  //  QPainter painter(&image_);
+  //  painter.drawImage(QPoint(0,0), image_);
 }
 
 DrawArea::~DrawArea() noexcept {
-  delete _conv;
-  delete image;
+  delete conv_;
+  delete image_;
 }
 
 void DrawArea::mousePressEvent(QMouseEvent *event) {
   // if (modified == false){
-  //   image.fill(Qt::white);
+  //   image_.fill(Qt::white);
   //   update();
   // }
   if (event->button() == Qt::LeftButton) {
-    lastPoint = event->pos();
-    scribling = true;
+    last_point_ = event->pos();
+    scribling_ = true;
   } else if (event->button() == Qt::RightButton) {
-    image->fill(Qt::white);
+    image_->fill(Qt::white);
     update();
   }
 }
 
 void DrawArea::mouseMoveEvent(QMouseEvent *event) {
-  if ((event->buttons() & Qt::LeftButton) && scribling)
-    drawLineTo(event->pos());
+  if ((event->buttons() & Qt::LeftButton) && scribling_)
+    DrawLineTo(event->pos());
 }
 
 void DrawArea::mouseReleaseEvent(QMouseEvent *event) {
-  if (event->button() == Qt::LeftButton && scribling) {
-    drawLineTo(event->pos());
-    scribling = false;
-    image->save(QDir::homePath() + "/1.png", "png");
-    emit sendLetter(_conv->convertDrawImg());
+  if (event->button() == Qt::LeftButton && scribling_) {
+    DrawLineTo(event->pos());
+    scribling_ = false;
+    image_->save(QDir::homePath() + "/1.png", "png");
+    emit SendLetter(conv_->convertDrawImg());
   }
   update();
 }
@@ -50,23 +50,23 @@ void DrawArea::mouseReleaseEvent(QMouseEvent *event) {
 void DrawArea::paintEvent(QPaintEvent *event) {
   QPainter painter(this);
   //  QRect dirtyRect = event->rect();
-  painter.drawImage(event->rect(), *image);
+  painter.drawImage(event->rect(), *image_);
 }
 
-void DrawArea::drawLineTo(const QPoint &endPoint) {
-  QPainter painter(image);
+void DrawArea::DrawLineTo(const QPoint &endPoint) {
+  QPainter painter(image_);
   painter.setPen(
       QPen(Qt::black, 14, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-  painter.drawPoint(lastPoint);
-  painter.drawLine(lastPoint, endPoint);
+  painter.drawPoint(last_point_);
+  painter.drawLine(last_point_, endPoint);
   //  int rad = (myPenWidth / 3) + 3;
-  //  update(QRect(lastPoint, endPoint).normalized().adjusted(-rad, -rad,
+  //  update(QRect(last_point_, endPoint).normalized().adjusted(-rad, -rad,
   //  +rad, +rad));
   update();
-  lastPoint = endPoint;
+  last_point_ = endPoint;
 }
 
-void DrawArea::loadImage() {
+void DrawArea::LoadImage() {
   QString fileName = QFileDialog::getOpenFileName(this,
                                                   tr("OpenFile"),
                                                   QDir::homePath(),
@@ -74,17 +74,17 @@ void DrawArea::loadImage() {
   if (!fileName.isEmpty()) {
     QImage loadedImage;
     loadedImage.load(fileName);
-    *image = loadedImage.scaled(280, 280);
-    emit sendLetter(_conv->convertLoadImg());
+    *image_ = loadedImage.scaled(280, 280);
+    emit SendLetter(conv_->convertLoadImg());
   }
 }
 
 Converter *DrawArea::getConv() {
-  return _conv;
+  return conv_;
 }
 /*
 QRect DrawArea::findCropArea() {
-  QImage img = image;
+  QImage img = image_;
   int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
   bool first = false;
   QRgb bg = img.pixel(0, 0);
@@ -152,11 +152,11 @@ QImage applyEffectToImage(QImage src, QGraphicsEffect *effect, int extent = 0) {
 }
 
 // bool DrawArea::saveImage(const QString &fileName, const char *fileFormat){
-double *DrawArea::saveImage() {
+double *DrawArea::SaveImage() {
   //		double ret[784];
   //		int num = 0;
   QImage visibleImage =
-      image.copy(findCropArea())
+      image_.copy(findCropArea())
           .scaled(28, 28, Qt::KeepAspectRatio, Qt::SmoothTransformation)
           .transformed(QTransform().rotate(-90));
   visibleImage.invertPixels();
@@ -197,14 +197,14 @@ bool isInvert(QImage *img, QColor *col) {
   return (((i / k) < col->lightness()) ? true : false);
 }
 
-double *DrawArea::openImage(const QString &fileName) {
+double *DrawArea::OpenImage(const QString &fileName) {
   QImage loadedImage;
   //		double *ret = new double[784];
   //		int num = 0;
   if (!loadedImage.load(fileName)) return NULL;
-  image = loadedImage.scaled(280, 280);
+  image_ = loadedImage.scaled(280, 280);
   loadedImage =
-      image.copy(findCropArea())
+      image_.copy(FindCropArea())
           .scaled(28, 28, Qt::KeepAspectRatio, Qt::SmoothTransformation)
           .transformed(QTransform().rotate(-90));
   loadedImage.mirror(false);
@@ -262,6 +262,6 @@ if (loadedImage.save(QDir::homePath() + "/3.png", "png")) {
 }
 }
 
-void DrawArea::setPenWidth(int val) { myPenWidth = val; }
+void DrawArea::SetPenWidth(int val) { myPenWidth = val; }
 */
 }  // namespace s21

@@ -3,9 +3,12 @@
 //
 
 #include "../headers/Network.h"
+#include <QPushButton>
+#include <sys/stat.h>
+#include <QFileDialog>
 
 namespace s21 {
-    Network::Network() : _hidden(2), _epoch(10), _typeNet(0) {
+    Network::Network(QObject *parent) : _hidden(2), _epoch(10), _typeNet(0), break_(false), ready_(false) {
         initNet();
     }
 
@@ -46,6 +49,8 @@ namespace s21 {
             _neurons_val[i] = new double [_layerSize[i]];
             _neurons_err[i] = new double [_layerSize[i]];
         }
+        ready_ = true;
+        qInfo() << "init net done";
     }
 
     void Network::reInitNet(int l) {
@@ -74,31 +79,73 @@ namespace s21 {
         }
         return (ra);
     }
+/*
+  double Network::NetworkTrain(std::vector<std::vector<double>> value) {
+      double ra = 0;
+      double right;
+      int predict;
 
-    double Network::NetworkTrain(std::vector<std::vector<double>> value) {
-        double ra = 0;
-        double right;
-        int predict;
-
-        auto t1 = std::chrono::steady_clock::now();
-        for (int i = 0; i < value.size(); ++i) {
-            SetInput(value[i]);
-            predict = ForwardFeed();
-            right = value[i][0];
-            if (right != predict) {
-                BackPropogation(right);
-                WeightsUpdater(2.1 * pow(2.1, -_counter / 10.));
-            }
-            else
-                ra++;
-        }
-        auto t2 = std::chrono::steady_clock::now();
-        _time = t2 - t1;
-        _counter++;
-        if (ra > _maxRa)
-            _maxRa = ra;
-        return (ra);
+      auto t1 = std::chrono::steady_clock::now();
+      for (int i = 0; i < value.size(); ++i) {
+          SetInput(value[i]);
+          predict = ForwardFeed();
+          right = value[i][0];
+          if (right != predict) {
+              BackPropogation(right);
+              WeightsUpdater(2.1 * pow(2.1, -_counter / 10.));
+          }
+          else
+              ra++;
+      }
+      auto t2 = std::chrono::steady_clock::now();
+      _time = t2 - t1;
+      _counter++;
+      if (ra > _maxRa)
+          _maxRa = ra;
+      return (ra);
+  }
+*/
+  void Network::NetworkTrain() {
+    double right;
+  double ra;
+  int predict;
+    if (_vector_train.empty()) {
+      emit openTrainFile();
+      return;
     }
+    ready_ = break_ = false;
+  emit trainMessage();
+    for (int j = 0; j < _epoch && !break_; j++) {
+      auto t1 = std::chrono::steady_clock::now();
+      ra = 0;
+      for (int i = 0; i < _vector_train.size() && !break_; ++i) {
+        SetInput(_vector_train[i]);
+        predict = ForwardFeed();
+        right = _vector_train[i][0];
+        if (right != predict) {
+          BackPropogation(right);
+          WeightsUpdater(2.1 * pow(2.1, -_counter / 10.));
+        } else {
+          ra++;
+        }
+        if (!(i % (88800/100)) && !break_){
+          // qInfo() << "RA" << ra;
+          emit updateBar(i / (88800/100));
+        }
+      }
+      auto t2 = std::chrono::steady_clock::now();
+      _time = t2 - t1;
+      std::cout << getTime().count() << std::endl;
+      _counter++;
+      qInfo() << "ra" << 100 - (ra * 100 / 88800);
+      if (ra > _maxRa) {
+        _maxRa = ra;
+      }
+      qInfo() << "MaxRa" << 100 - (_maxRa * 100 / 88800);
+    }
+    _counter = 0;
+    emit iAmReady();
+  }
 
     int Network::ForwardFeed() {
         for (int i = 1; i < _hidden + 2; ++i) {
@@ -227,22 +274,33 @@ namespace s21 {
         fin.close();
     }
 
-    std::vector<std::vector<double>> Network::ReadData(std::string filename) {
+    std::vector<std::vector<double>> Network::ReadData(std::string filename, testTrain v) {
+      break_ = false;
+      ready_ = false;
+      int size;
+      if (v == train_)
+        size = 88800;
+      else
+        size = 14800;
+      emit readMessage(filename);
         std::vector<std::vector<double>> _vect;
         std::ifstream fin(filename);
+        int i = 0;
         if (!fin.is_open())
             std::cout << "Error reading file" << filename << std::endl;
         else
             std::cout << filename << " loading...\n";
         std::string tmp;
+        qInfo() << break_;
+      std::string line;
         bool first;
-        while (!fin.eof()) {
+        while (!fin.eof() && !break_) {
             std::getline(fin, tmp);
             std::istringstream input;
             input.str(tmp.c_str());
             first = true;
             std::vector<double> _number;
-            for (std::string num; std::getline(input, num, ',');) {
+            for (std::string num; std::getline(input, num, ',') && !break_;) {
                 if (first) {
                     _number.push_back(stoi(num));
                     first = false;
@@ -251,9 +309,19 @@ namespace s21 {
             }
             if (tmp != "")
                 _vect.push_back(_number);
+            if (!(++i % (size/100)) && !break_)
+              emit updateBar(i / (size/100));
+            // qInfo() << i;
         }
         fin.close();
         std::cout << "MNIST loaded... \n";
+      emit iAmReady();
+      if (v == train_ && !break_){
+        _vector_train = _vect;
+        NetworkTrain();
+      }
+      else if (v == test_ && !break_)
+        _vector_test = _vect;
         return _vect;
     }
 
@@ -276,9 +344,11 @@ namespace s21 {
 
     void Network::setTypeNet(int n) {_typeNet = n;}
 
-    void Network::setLayer(int n) {_hidden = n;}
+    void Network::setLayer(int n) {_hidden = n; qInfo() << "Set" << _hidden << "layers";}
 
-    void Network::setEpoch(int n) {_epoch = n;}
+    void Network::setEpoch(int n) {_epoch = n; qInfo() << "Set" << _epoch << "epochs";}
+
+void Network::setBreak(bool b) {break_ = b;}
 
     double Network::getMaxRa() {return _maxRa;}
 
