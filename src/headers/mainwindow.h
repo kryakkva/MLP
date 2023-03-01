@@ -28,11 +28,13 @@ class MainWindow : public QMainWindow {
  private slots:
   void PredictLetter(std::vector<double>);
   void openTrainFile();
-  void on_load_btn_clicked();
+  void openTestFile();
+  // void on_load_btn_clicked();
 
   void on_spinBox_valueChanged(int arg1);
-
   void on_layersDial_sliderReleased();
+  void on_saveWeightsButton_clicked();
+  void on_LoadWeightsButton_clicked();
 
 signals:
   void LetterIs(const QString &);

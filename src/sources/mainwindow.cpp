@@ -32,9 +32,13 @@ void MainWindow::SignalSlotsConnect(){
   connect(this, SIGNAL(readFile(std::string, testTrain)), model_, SLOT(ReadData(std::string, testTrain)));
   connect(model_, SIGNAL(updateBar(int)), messages_, SLOT(updateBarVal(int)));
   connect(view_->trainButton, SIGNAL(pressed()), model_, SLOT(NetworkTrain()));
+  connect(view_->testButton, SIGNAL(pressed()), model_, SLOT(NetworkTest()));
   connect(model_, SIGNAL(openTrainFile()), this, SLOT(openTrainFile()));
+  connect(model_, SIGNAL(openTestFile()), this, SLOT(openTestFile()));
   connect(model_, SIGNAL(trainMessage()), messages_, SLOT(train()));
   connect(model_, SIGNAL(iAmReady()), messages_, SLOT(modelReady()));
+  connect(model_, SIGNAL(updateChart(double)), messages_, SLOT(updateChart(double)));
+  connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -50,10 +54,10 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() {
   thr_model_->quit();
   thr_model_->deleteLater();
-  delete draw_area_;
   delete view_;
-  delete model_;
+  delete draw_area_;
   delete messages_;
+  delete model_;
 }
 
 void MainWindow::SetDrawArea() {
@@ -67,16 +71,13 @@ void MainWindow::SetDrawArea() {
 void MainWindow::PredictLetter(std::vector<double> v) {
   model_->SetInput(v, 0);
   LetterIs(QString(QChar(model_->ForwardFeed() + 64)));
-  // printVector(_v);
-  // img.save(QDir::homePath() + "/3.png", "png");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
   event->accept();
 }
-
-
+/*
 void MainWindow::on_load_btn_clicked()
 {
   QString file_name = QFileDialog::getOpenFileName(this,
@@ -89,14 +90,36 @@ void MainWindow::on_load_btn_clicked()
   // msg.exec();
   // model_->ReadData(file_name.toStdString());
 }
+*/
 
 void MainWindow::openTrainFile() {
-  QString file_name = QFileDialog::getOpenFileName(this,
-                                                   tr("OpenFile"),
-                                                   QDir::homePath(),
-                                                   tr("Train (*.csv)"));
+  // std::thread th([&]() {});
+  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Train_file (*.csv)");
   if (!file_name.isEmpty())
       emit readFile(file_name.toStdString(), train_);
+}
+
+void MainWindow::openTestFile() {
+  // std::thread th([&]() {});
+  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Test_file (*.csv)");
+  if (!file_name.isEmpty())
+      emit readFile(file_name.toStdString(), test_);
+}
+
+
+void MainWindow::on_saveWeightsButton_clicked()
+{
+  QString file_name = QFileDialog::getSaveFileName(this, "Open weights file", QDir::homePath(), "Weights_file (*.mlp)");
+  if (!file_name.isEmpty())
+    model_->SaveWeights_M(file_name.toStdString());
+}
+
+
+void MainWindow::on_LoadWeightsButton_clicked()
+{
+  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Weights_file (*.mlp)");
+  if (!file_name.isEmpty())
+    model_->ReadWeights_M(file_name.toStdString());
 }
 
 

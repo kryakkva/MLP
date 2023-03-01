@@ -33,29 +33,33 @@ enum testTrain {
         std::chrono::duration<double> _time;
         void initNet();
         bool break_;
-        bool ready_;
+        std::string content_dir_;
+        double test_part_;
      private slots:
       // double NetworkTrain(std::vector<std::vector<double>> value);
       void NetworkTrain();
+      void NetworkTest();
+      void SetTestPart(int i);
+      void ReadData(std::string filename, testTrain v);
 
-      std::vector<std::vector<double>> ReadData(std::string filename, testTrain v);
      signals:
       void updateBar(int i);
       void readMessage(std::string str);
       void trainMessage();
       void openTrainFile();
+      void openTestFile();
       void iAmReady();
+      void updateChart(double);
      public:
       std::vector<std::vector<double>> _vector_train;
       std::vector<std::vector<double>> _vector_test;
+
       Network(QObject *parent = nullptr);
-
       void setBreak(bool b);
-      ~Network();
 
+      ~Network();
       void reInitNet(int l);
       void SetInput(std::vector<double> values, int fl = 1);
-      double NetworkTest(std::vector<std::vector<double>> value);
       int ForwardFeed();
 
         int SearchMaxIndex(double *value);
@@ -72,7 +76,6 @@ enum testTrain {
         void setLayer(int n);
         void setEpoch(int n);
         double getMaxRa();
-      bool getReady() {return ready_;}
         std::chrono::duration<double> getTime();
     };
 } // s21

@@ -14,11 +14,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_PREFIX_PATH "/Users/yarik/Qt/6.4.2/macos/lib/cmake")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS
-  Widgets
+  Widgets Charts
 )
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS
-  Widgets
+  Widgets Charts
 )
 
 include_directories(
@@ -94,6 +94,7 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
   Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Charts
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

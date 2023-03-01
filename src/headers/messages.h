@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QEvent>
+#include <QtCharts/QtCharts>
 #include "Network.h"
 
 namespace s21 {
@@ -21,16 +22,20 @@ public:
     void reject();
 private slots:
   void readingFile(std::string str);
-  void okBtnClicked(bool b);
+  void chartBtnClicked(bool b);
   void breakBtnClicked(bool b);
   void updateBarVal(int i);
   void train();
   void modelReady();
   // void proggressBarFull(int);
+  void updateChart(double d);
 
 private:
-    Ui::Messages *ui;
-    Network &model_;
+  Ui::Messages *ui;
+  Network &model_;
+  QBarSet *set_;
+  QBarSeries *series_;
+  QChart *chart_;
 };
 
 
