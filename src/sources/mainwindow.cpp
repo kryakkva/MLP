@@ -18,27 +18,29 @@ static void printVector(std::vector<double> &_v) {
 }
 
 void MainWindow::SignalSlotsConnect(){
-  connect(this, SIGNAL(LetterIs(const QString &)),
-          view_->letterLabel, SLOT(setText(const QString &)));
-  connect(view_->layersDial, SIGNAL(valueChanged(int)),
-          view_->lcdNumber, SLOT(display(int)));
-  connect(view_->testScrollBar, SIGNAL(valueChanged(int)),
-          draw_area_->getConv(), SLOT(intToString(int)));
-  connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),
-          view_->testPartLabel, SLOT(setText(const QString &)));
-  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),
-          view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
+  connect(this, SIGNAL(LetterIs(const QString &)), view_->letterLabel, SLOT(setText(const QString &)));
+  connect(view_->layersDial, SIGNAL(valueChanged(int)),view_->lcdNumber, SLOT(display(int)));
+  connect(view_->testScrollBar, SIGNAL(valueChanged(int)),draw_area_->getConv(), SLOT(intToString(int)));
+  connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),view_->testPartLabel, SLOT(setText(const QString &)));
+  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
   connect(model_, SIGNAL(readMessage(std::string)), messages_, SLOT(readingFile(std::string)));
   connect(this, SIGNAL(readFile(std::string, testTrain)), model_, SLOT(ReadData(std::string, testTrain)));
-  connect(model_, SIGNAL(updateBar(int)), messages_, SLOT(updateBarVal(int)));
-  connect(view_->trainButton, SIGNAL(pressed()), model_, SLOT(NetworkTrain()));
-  connect(view_->testButton, SIGNAL(pressed()), model_, SLOT(NetworkTest()));
-  connect(model_, SIGNAL(openTrainFile()), this, SLOT(openTrainFile()));
-  connect(model_, SIGNAL(openTestFile()), this, SLOT(openTestFile()));
+  connect(model_, SIGNAL(updateBar(int, testTrain, int)), messages_, SLOT(updateBarVal(int, testTrain, int)));
+  connect(view_->trainButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTrain(bool)));
+  connect(view_->testButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTest(bool)));
+  connect(model_, SIGNAL(actTrainBtn(bool)), view_->trainButton, SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(actTestBtn(bool)), view_->testButton, SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(actChartBtn(bool)), view_->chartButton, SLOT(setEnabled(bool)));
   connect(model_, SIGNAL(trainMessage()), messages_, SLOT(train()));
+  connect(model_, SIGNAL(testMessage()), messages_, SLOT(test()));
   connect(model_, SIGNAL(iAmReady()), messages_, SLOT(modelReady()));
   connect(model_, SIGNAL(updateChart(double)), messages_, SLOT(updateChart(double)));
   connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
+  connect(view_->spinBox, SIGNAL(valueChanged(int)), model_, SLOT(setEpoch(int)));
+  connect(view_->loadTestButton, SIGNAL(clicked(bool)), this, SLOT(openTestFile(bool)));
+  connect(view_->LoadTrainButton, SIGNAL(clicked(bool)), this, SLOT(openTrainFile(bool)));
+  connect(view_->chartButton, SIGNAL(clicked(bool)), messages_, SLOT(showChart(bool)));
+  connect(model_, SIGNAL(wrongFile()), this, SLOT(wrongFileError()));
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -92,14 +94,14 @@ void MainWindow::on_load_btn_clicked()
 }
 */
 
-void MainWindow::openTrainFile() {
+void MainWindow::openTrainFile(bool b) {
   // std::thread th([&]() {});
   QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Train_file (*.csv)");
   if (!file_name.isEmpty())
       emit readFile(file_name.toStdString(), train_);
 }
 
-void MainWindow::openTestFile() {
+void MainWindow::openTestFile(bool b) {
   // std::thread th([&]() {});
   QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Test_file (*.csv)");
   if (!file_name.isEmpty())
@@ -123,15 +125,19 @@ void MainWindow::on_LoadWeightsButton_clicked()
 }
 
 
-void MainWindow::on_spinBox_valueChanged(int arg1)
-{
-  model_->setEpoch(arg1);
-}
+// void MainWindow::on_spinBox_valueChanged(int arg1)
+// {
+//   model_->setEpoch(arg1);
+// }
 
 
 void MainWindow::on_layersDial_sliderReleased()
 {
   model_->reInitNet(view_->lcdNumber->intValue());
+}
+
+void MainWindow::wrongFileError() {
+  QMessageBox::information(this, "you open wrong file", "please open right file");
 }
 
 /*

@@ -14,7 +14,7 @@
 #include <QtCore>
 
 namespace s21 {
-Network::Network(QObject *parent) : _hidden(2), _epoch(10), _typeNet(0), test_part_(1), break_(false){
+Network::Network(QObject *parent) : _hidden(2), _epoch(10), _typeNet(0), test_part_(1), break_(false), is_trained_(false){
   QDir dir(qApp->applicationDirPath());
   dir.cd("../");
   content_dir_ = dir.absolutePath().toStdString();
@@ -45,10 +45,10 @@ void Network::initNet() {
   // double delit = _hidden;
   std::cout << 784 << " ";
   for (int i = 0; i < _hidden; i++) {
-    _layerSize.push_back(250);
+    _layerSize.push_back(150);
     // neyrons /= delit--;
     // neyrons *= delit;
-    std::cout << _layerSize[i+1] << " ";
+    std::cout << _layerSize[i + 1] << " ";
   }
   std::cout << 26 << std::endl;
   _layerSize.push_back(26);
@@ -98,21 +98,27 @@ double Network::NetworkTest(std::vector<std::vector<double>> value) {
 }
 */
 
-void Network::NetworkTest() {
-  if (_vector_test.empty()) {
-    emit openTestFile();
-    return;
-  }
+void Network::NetworkTest(bool is_auto) {
+  // if (_vector_test.empty()) {
+  //   std::cout << is_auto << std::endl;
+  //   emit openTestFile();
+  //   return;
+  // }
   char c = 64;
   char p = 64;
-  // break_ = false;
+
   double ra = 0;
   double right;
   int predict;
-  for (int i = 0; i < _vector_test.size() && !break_; ++i) {
-    SetInput(_vector_test[i]);
+  if (!is_auto){
+    break_ = false;
+    emit testMessage();
+  }
+  int j = 0;
+  for (double i = 0; i < _vector_test.size() && !break_; i+=1/test_part_, j++) {
+    SetInput(_vector_test[(int)i]);
     predict = ForwardFeed();
-    right = _vector_test[i][0];
+    right = _vector_test[(int)i][0];
     if (right == predict)
       ra++;
     // else{
@@ -123,9 +129,16 @@ void Network::NetworkTest() {
     //   }
     //    std:: cout  << c << ", ";
     // }
+    if (!is_auto && !(j % (int)((_vector_test.size()*test_part_)/100)) && !break_){
+      emit updateBar(j / (int)((_vector_test.size()*test_part_)/100), test_);
+    }
   }
-  emit updateChart(100 - (ra * 100 / _vector_test.size()));
-  std::cout << "error " << 100 - ra * 100 / _vector_test.size()<< std::endl;
+  qInfo() << j;
+  if (is_auto && !break_)
+    emit updateChart(100 - (ra * 100 / _vector_test.size()));
+  else
+    emit iAmReady();
+  std::cout << "error " << 100 - ra * 100 / (_vector_test.size()*test_part_)<< std::endl;
 }
 
 /*
@@ -154,14 +167,14 @@ void Network::NetworkTest() {
       return (ra);
   }
 */
-void Network::NetworkTrain() {
+void Network::NetworkTrain(bool b) {
   double right;
   double ra;
   int predict;
-  if (_vector_train.empty()) {
-    emit openTrainFile();
-    return;
-  }
+  // if (_vector_train.empty()) {
+  //   emit openTrainFile();
+  //   return;
+  // }
   break_ = false;
   emit trainMessage();
   auto t1 = std::chrono::steady_clock::now();
@@ -178,8 +191,8 @@ void Network::NetworkTrain() {
       } else {
         ra++;
       }
-      if (!(i % (88800/100)) && !break_){
-        emit updateBar(i / (88800/100));
+      if (!(i % (_vector_train.size()/100)) && !break_){
+        emit updateBar(i / (_vector_train.size()/100), train_, j + 1);
       }
     }
     auto t2 = std::chrono::steady_clock::now();
@@ -188,17 +201,20 @@ void Network::NetworkTrain() {
     std::cout << _counter << " Epoch | "  << 100 - (ra * 100 / 88800) << " % Error | " << getTime().count() << " sec | Test ";
     // std::thread _th([&](){NetworkTest();});
     // _th.detach();
-    NetworkTest();
+    NetworkTest(true);
     // NetworkTest();
     if (ra > _maxRa) {
       _maxRa = ra;
     }
   }
+  if (break_)
+    _counter--;
   auto t2 = std::chrono::steady_clock::now();
   _time = t2 - t1;
   std::cout << "all time: " << getTime().count() << std::endl;
   // _counter = 0;
   emit iAmReady();
+  emit actChartBtn(true);
 }
 
 int Network::ForwardFeed() {
@@ -283,7 +299,8 @@ void Network::ReadWeights_M(std::string filename) {
   std::getline(fin, test);
   if (test.compare("This is weights file") != 0) {
     printf("You open wrong file!!!\n");
-    exit(0);
+    emit wrongFile();
+    return;
   }
   std::vector<int> line;
   double num;
@@ -291,13 +308,15 @@ void Network::ReadWeights_M(std::string filename) {
     fin >> num;
     if (num - (int)num != 0) {
       printf("Wrong in file 2\n");
-      exit(0);
+      emit wrongFile();
+      return;
     }
     line.push_back(static_cast<int>(num));
   }
   if (_hidden + 2 != line.size()) {
     printf("Wrong in file 3\n");
-    exit(0);
+    emit wrongFile();
+    return;
   }
   int multi = 0;
   int count = 0;
@@ -321,7 +340,8 @@ void Network::ReadWeights_M(std::string filename) {
     count++;
   if (count != multi) {
     printf("Amount of number is wrong!!!\n");
-    exit(0);
+    emit wrongFile();
+    return;
   }
   std::cout << filename << " readed \n";;
   fin.close();
@@ -361,19 +381,20 @@ void Network::ReadWeights_M(std::string filename) {
             if (tmp != "")
                 _vect.push_back(_number);
             if (!(++i % (size/100)) && !break_)
-              emit updateBar(i / (size/100));
+              emit updateBar(i / (size/100), test_);
             // qInfo() << i;
         }
         fin.close();
         std::cout << " MNIST loaded... \n";
       emit iAmReady();
-      if (v == train_ && !break_){
+      if (v == train_ && !break_)
         _vector_train = _vect;
-        NetworkTrain();
-      }
-      else if (v == test_ && !break_){
+      else if (v == test_ && !break_)
         _vector_test = _vect;
-        NetworkTest();
+      if (!_vector_test.empty()){
+        emit actTestBtn(true);
+        if (!_vector_train.empty())
+          emit actTrainBtn(true);
       }
     }
 

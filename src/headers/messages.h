@@ -24,11 +24,13 @@ private slots:
   void readingFile(std::string str);
   void chartBtnClicked(bool b);
   void breakBtnClicked(bool b);
-  void updateBarVal(int i);
+  void updateBarVal(int i, testTrain stat, int e = 0);
   void train();
+  void test();
   void modelReady();
   // void proggressBarFull(int);
   void updateChart(double d);
+  void showChart(bool);
 
 private:
   Ui::Messages *ui;
@@ -36,6 +38,8 @@ private:
   QBarSet *set_;
   QBarSeries *series_;
   QChart *chart_;
+  QValueAxis *axisY_;
+  bool isChart_;
 };
 
 
