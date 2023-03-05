@@ -11,6 +11,7 @@ Messages::Messages(Network &model, QWidget *parent) :
   set_ = new QBarSet("ERROR");
   series_ = new QBarSeries();
   axisY_ = new QValueAxis;
+  chart_->addAxis(axisY_, Qt::AlignLeft);
   // qInfo() << series_->isLabelsVisible();
   series_->setLabelsVisible();
   // qInfo() << series_->isLabelsVisible();
@@ -111,7 +112,6 @@ void Messages::updateChart(double d) {
   set_->selectAllBars();
   if (set_->selectedBars().size() == 0) {
     axisY_->setMax(d);
-    // chart_->addAxis(axisY_, Qt::AlignLeft);
   }
   chart_->removeSeries(series_);
   set_->append(d);
