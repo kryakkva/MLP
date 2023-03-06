@@ -38,8 +38,12 @@ private:
   QBarSet *set_;
   QBarSeries *series_;
   QChart *chart_;
-  QValueAxis *axisY_;
+//  QValueAxis *axisY_;
+    bool ready_;
   bool isChart_;
+
+private:
+    void clearChart();
 };
 
 

@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
   view_->setupUi(this);
   SetDrawArea();
   SignalSlotsConnect();
+//  delete messages_;
   thr_model_ = new QThread(this);
   model_->moveToThread(thr_model_);
   thr_model_->start(QThread::NormalPriority);
@@ -57,9 +58,9 @@ MainWindow::~MainWindow() {
   thr_model_->quit();
   thr_model_->deleteLater();
   delete view_;
-  delete draw_area_;
-  delete messages_;
-  delete model_;
+//  delete draw_area_;
+//  delete messages_;
+//  delete model_;
 }
 
 void MainWindow::SetDrawArea() {

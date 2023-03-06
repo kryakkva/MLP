@@ -4,14 +4,14 @@
 namespace s21 {
 
 Messages::Messages(Network &model, QWidget *parent) :
-    QDialog(parent), model_(model), ui(new Ui::Messages)
-{
+    QDialog(parent), model_(model), ui(new Ui::Messages), isChart_(false) {
   ui->setupUi(this);
   chart_ = new QChart();
-  set_ = new QBarSet("ERROR");
-  series_ = new QBarSeries();
-  axisY_ = new QValueAxis;
-  chart_->addAxis(axisY_, Qt::AlignLeft);
+  set_ = new QBarSet("Epoch Error Percentage");
+    series_ = new QBarSeries();
+//    axisY_ = new QValueAxis;
+//    qInfo() << ui << ui->chartArea << chart_ << set_ <<  series_ ;
+//    chart_->addAxis(axisY_, Qt::AlignLeft);
   // qInfo() << series_->isLabelsVisible();
   series_->setLabelsVisible();
   // qInfo() << series_->isLabelsVisible();
@@ -20,7 +20,10 @@ Messages::Messages(Network &model, QWidget *parent) :
   series_->setLabelsAngle(-90);
   series_->setLabelsFormat("@value %");
   series_->append(set_);
-  chart_->addSeries(series_);
+  chart_->legend()->setVisible(false);
+  chart_->setBackgroundVisible(false);
+    chart_->addSeries(series_);
+//    chart_->createDefaultAxes();
   // QValueAxis *axisX = new QValueAxis();
   // axisX->setRange(0,model_.getEpoch());
   // axisX->setTickCount(1);
@@ -33,22 +36,25 @@ Messages::Messages(Network &model, QWidget *parent) :
   // chart_->createDefaultAxes();
   // chart_->legend()->setVisible(true);
   // chart_->legend()->setAlignment(Qt::AlignBottom);
-
-  ui->chartArea->setChart(chart_);
-  connect(ui->break_pushButton, SIGNAL(clicked(bool)), this, SLOT(breakBtnClicked(bool)));
+    ui->chartArea->setChart(chart_);
+    chart_->createDefaultAxes();
+    connect(ui->break_pushButton, SIGNAL(clicked(bool)), this, SLOT(breakBtnClicked(bool)));
   connect(ui->chart_pushButton, SIGNAL(clicked(bool)), this, SLOT(chartBtnClicked(bool)));
 }
 
 Messages::~Messages()
 {
+//    delete axisY_;
+//    delete set_;
+//    delete series_;
+//    delete chart_;
+//ui->chartArea->deleteLater();
     delete ui;
-    delete axisY_;
-    delete set_;
-    delete series_;
-    delete chart_;
 }
 
 void Messages::readingFile(std::string str) {
+    ready_ = false;
+    ui->break_pushButton->setText("Break");
   this->setWindowTitle("Reading");
   this->setFixedSize(600,200);
   ui->file_name_label->setVisible(true);
@@ -63,11 +69,35 @@ void Messages::readingFile(std::string str) {
   this->exec();
 }
 
+void Messages::clearChart(){
+    set_->selectAllBars();
+    if (!set_->selectedBars().empty()){
+        qInfo() << "selected bars not empty" << set_->selectedBars().size();
+        set_->remove(0, set_->selectedBars().size());
+    }
+    if (!chart_->series().empty()){
+        qInfo() << "series not empty" << chart_->series().size();
+        chart_->removeSeries(series_);
+    }
+//    if (!chart_->axes().empty()){
+////        int a = chart_->axes().size();
+//        qInfo() << "axes not empty" << chart_->axes().size();
+//        while (chart_->axes().size()){
+//            qInfo() << chart_->axes()[0];
+//            chart_->removeAxis(chart_->axes()[0]);
+//        }
+//        qInfo() << "axes not empty" << chart_->axes().size();
+//    }
+//    chart_->createDefaultAxes();
+    qInfo() << "Cleared";
+}
+
 void Messages::train() {
+    ui->break_pushButton->setText("Break");
+    ready_ = false;
   this->setWindowTitle("Training");
   this->setFixedSize(600,200);
-  set_->selectAllBars();
-  set_->remove(0, set_->selectedBars().size());
+  clearChart();
   ui->chart_pushButton->setText("Show chart");
   ui->label->setText("Training...");
   ui->file_name_label->setVisible(true);
@@ -82,6 +112,8 @@ void Messages::train() {
 }
 
 void Messages::test() {
+    ui->break_pushButton->setText("Break");
+    ready_ = false;
   this->setWindowTitle("Testing");
   this->setFixedSize(600,200);
   ui->label->setText("Testing...");
@@ -109,13 +141,14 @@ void Messages::chartBtnClicked(bool b) {
 void Messages::updateChart(double d) {
   // qInfo() << d;
   // chart_->createDefaultAxes();
-  set_->selectAllBars();
-  if (set_->selectedBars().size() == 0) {
-    axisY_->setMax(d);
+    set_->append(d);
+    set_->selectAllBars();
+    if (set_->selectedBars().size() == 1) {
+      chart_->addSeries(series_);
   }
-  chart_->removeSeries(series_);
-  set_->append(d);
-  chart_->addSeries(series_);
+    chart_->createDefaultAxes();
+//  chart_->update();
+//  ui->chartArea->update();
 }
 
 void Messages::breakBtnClicked(bool b) {
@@ -134,11 +167,12 @@ void Messages::updateBarVal(int i, testTrain stat, int e) {
 }
 
 void Messages::modelReady() {
-  QDialog::reject();
+    ready_ = true;
+    ui->break_pushButton->setText("OK");
 }
 
 void Messages::reject() {
-  if (isChart_){
+  if (isChart_ || ready_){
     isChart_ = false;
     QDialog::reject();
   }
@@ -149,8 +183,9 @@ void Messages::reject() {
                                     QMessageBox::No | QMessageBox::Yes,
                                     QMessageBox::No);
     if (ret == (int) QMessageBox::Yes) {
-      model_.setBreak(true);
-      QDialog::reject();
+        if (!ready_)
+            model_.setBreak(true);
+        QDialog::reject();
     }
   }
   }
