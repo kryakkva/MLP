@@ -2,13 +2,22 @@
 <ui version="4.0">
  <class>s21::View</class>
  <widget class="QMainWindow" name="s21::View">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>940</width>
-    <height>565</height>
+    <height>531</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -411,7 +420,7 @@
       <number>100</number>
      </property>
      <property name="value">
-      <number>50</number>
+      <number>100</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -427,7 +436,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>0.50</string>
+      <string>1.00</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -756,11 +765,11 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="about_perc_lable">
+   <widget class="QLabel" name="train_status_lablel">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>460</y>
+      <y>455</y>
       <width>891</width>
       <height>21</height>
      </rect>
@@ -774,7 +783,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Attention! The perceptron is not trained. First, load the weights or train the perceptron.</string>
+     <string>Attention! The perceptron is not trained. First load the weights for 2 hidden layers or train the perceptron.</string>
     </property>
    </widget>
   </widget>

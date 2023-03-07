@@ -6,19 +6,15 @@
 #include <QPushButton>
 #include <sys/stat.h>
 #include <QFileDialog>
-
 #include <mach-o/dyld.h>
-
-// #include<stdio.h>
-#include<unistd.h>
 #include <QtCore>
 
 namespace s21 {
-Network::Network(QObject *parent) : _hidden(2), _epoch(10), _typeNet(0), test_part_(1), break_(false), is_trained_(false){
+Network::Network(QObject *parent) : _hidden(2), _epoch(10), _typeNet(0), test_part_(1), break_(false){
   QDir dir(qApp->applicationDirPath());
   dir.cd("../");
-  content_dir_ = dir.absolutePath().toStdString();
-  std::cout << "Contents dir ->" << content_dir_ << std::endl;
+  // content_dir_ = dir.absolutePath().toStdString();
+  // std::cout << "Contents dir ->" << content_dir_ << std::endl;
   initNet();
 }
 
@@ -67,6 +63,7 @@ void Network::initNet() {
     _neurons_val[i] = new double [_layerSize[i]];
     _neurons_err[i] = new double [_layerSize[i]];
   }
+  emit isTrained(false);
   std::cout << "init net done\n" ;
 }
 
@@ -99,20 +96,14 @@ double Network::NetworkTest(std::vector<std::vector<double>> value) {
 */
 
 void Network::NetworkTest(bool is_auto) {
-  // if (_vector_test.empty()) {
-  //   std::cout << is_auto << std::endl;
-  //   emit openTestFile();
-  //   return;
-  // }
-  char c = 64;
-  char p = 64;
-
+  // char c = 64;
+  // char p = 64;
   double ra = 0;
   double right;
   int predict;
   if (!is_auto){
     break_ = false;
-    emit testMessage();
+    emit dialogMsg(test_);
   }
   int j = 0;
   for (double i = 0; i < _vector_test.size() && !break_; i+=1/test_part_, j++) {
@@ -137,7 +128,7 @@ void Network::NetworkTest(bool is_auto) {
   if (is_auto && !break_)
     emit updateChart(100 - (ra * 100 / _vector_test.size()));
   else
-    emit iAmReady();
+    emit iAmReady(test_);
   std::cout << "error " << 100 - ra * 100 / (_vector_test.size()*test_part_)<< std::endl;
 }
 
@@ -171,12 +162,8 @@ void Network::NetworkTrain(bool b) {
   double right;
   double ra;
   int predict;
-  // if (_vector_train.empty()) {
-  //   emit openTrainFile();
-  //   return;
-  // }
   break_ = false;
-  emit trainMessage();
+  emit dialogMsg(train_);
   auto t1 = std::chrono::steady_clock::now();
   for (int j = 0; j < _epoch && !break_; j++) {
     auto t1 = std::chrono::steady_clock::now();
@@ -187,7 +174,7 @@ void Network::NetworkTrain(bool b) {
       right = _vector_train[i][0];
       if (right != predict) {
         BackPropogation(right);
-        WeightsUpdater(2.1 * pow(2.1, - _counter / 10.));
+        WeightsUpdater(2.1 * pow(2.1, - _counter / (_epoch * 3)));
       } else {
         ra++;
       }
@@ -212,9 +199,11 @@ void Network::NetworkTrain(bool b) {
   auto t2 = std::chrono::steady_clock::now();
   _time = t2 - t1;
   std::cout << "all time: " << getTime().count() << std::endl;
-  // _counter = 0;
-  emit iAmReady();
-  emit actChartBtn(true);
+  emit iAmReady(train_);
+  if (_counter){
+    emit isTrained(true, _counter);
+    emit actChartBtn(true);
+  }
 }
 
 int Network::ForwardFeed() {
@@ -231,11 +220,11 @@ int Network::SearchMaxIndex(double *value) {
   double max = value[0];
   int prediction = 1;
   double tmp;
-  int pred = 1;
+  // int pred = 1;
   for (int i = 1; i < _layerSize[_hidden + 1]; i++) {
     tmp = value[i];
     if (tmp > max) {
-      pred = prediction;
+      // pred = prediction;
       prediction = i + 1;
       max = tmp;
     }
@@ -345,16 +334,17 @@ void Network::ReadWeights_M(std::string filename) {
   }
   std::cout << filename << " readed \n";;
   fin.close();
+  emit isTrained(true);
 }
 
-    void Network::ReadData(std::string filename, testTrain v) {
+    void Network::ReadData(std::string filename, mStatus v) {
       break_ = false;
       int size;
       if (v == train_)
         size = 88800;
       else
         size = 14800;
-      emit readMessage(filename);
+      emit dialogMsg(read_, filename);
         std::vector<std::vector<double>> _vect;
         std::ifstream fin(filename);
         int i = 0;
@@ -382,11 +372,10 @@ void Network::ReadWeights_M(std::string filename) {
                 _vect.push_back(_number);
             if (!(++i % (size/100)) && !break_)
               emit updateBar(i / (size/100), test_);
-            // qInfo() << i;
         }
         fin.close();
-        std::cout << " MNIST loaded... \n";
-      emit iAmReady();
+        // std::cout << " MNIST loaded... \n";
+      emit iAmReady(read_);
       if (v == train_ && !break_)
         _vector_train = _vect;
       else if (v == test_ && !break_)
@@ -415,6 +404,8 @@ void Network::ReadWeights_M(std::string filename) {
     }
 
 int Network::getEpoch() {return _epoch;}
+
+int Network::getLayers() {return _hidden;}
 
 void Network::setTypeNet(int n) {_typeNet = n;}
 

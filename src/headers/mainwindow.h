@@ -36,11 +36,12 @@ class MainWindow : public QMainWindow {
   void on_layersDial_sliderReleased();
   void on_saveWeightsButton_clicked();
   void on_LoadWeightsButton_clicked();
+  void isTrained(bool, int);
 
 signals:
   void LetterIs(const QString &);
 
-  void readFile(std::string, testTrain);
+  void readFile(std::string, mStatus);
   // void setInputLetter(std::vector<double>);
 
  private:

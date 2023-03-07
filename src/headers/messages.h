@@ -17,20 +17,21 @@ class Messages : public QDialog
     Q_OBJECT
 
 public:
-    explicit Messages(Network &model, QWidget *parent = nullptr);
-    ~Messages();
-    void reject();
+  explicit Messages(Network &model, QWidget *parent = nullptr);
+  ~Messages();
 private slots:
-  void readingFile(std::string str);
+  // void readingFile(std::string str);
   void chartBtnClicked(bool b);
   void breakBtnClicked(bool b);
-  void updateBarVal(int i, testTrain stat, int e = 0);
-  void train();
-  void test();
-  void modelReady();
-  // void proggressBarFull(int);
+  void updateBarVal(int i, mStatus stat, int e = 0);
+  // void train();
+  // void test();
+  void modelReady(mStatus status);
   void updateChart(double d);
   void showChart(bool);
+  void showDialogMsg(mStatus status, std::string str = "");
+
+  void on_saveChartPushButton_clicked();
 
 private:
   Ui::Messages *ui;
@@ -38,12 +39,12 @@ private:
   QBarSet *set_;
   QBarSeries *series_;
   QChart *chart_;
-//  QValueAxis *axisY_;
-    bool ready_;
+  bool ready_;
   bool isChart_;
 
-private:
-    void clearChart();
+ private:
+  void reject();
+  void clearChart();
 };
 
 

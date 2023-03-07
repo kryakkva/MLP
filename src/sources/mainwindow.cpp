@@ -19,28 +19,39 @@ static void printVector(std::vector<double> &_v) {
 
 void MainWindow::SignalSlotsConnect(){
   connect(this, SIGNAL(LetterIs(const QString &)), view_->letterLabel, SLOT(setText(const QString &)));
-  connect(view_->layersDial, SIGNAL(valueChanged(int)),view_->lcdNumber, SLOT(display(int)));
-  connect(view_->testScrollBar, SIGNAL(valueChanged(int)),draw_area_->getConv(), SLOT(intToString(int)));
+  connect(this, SIGNAL(readFile(std::string, mStatus)), model_, SLOT(ReadData(std::string, mStatus)));
+
   connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),view_->testPartLabel, SLOT(setText(const QString &)));
-  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
-  connect(model_, SIGNAL(readMessage(std::string)), messages_, SLOT(readingFile(std::string)));
-  connect(this, SIGNAL(readFile(std::string, testTrain)), model_, SLOT(ReadData(std::string, testTrain)));
-  connect(model_, SIGNAL(updateBar(int, testTrain, int)), messages_, SLOT(updateBarVal(int, testTrain, int)));
-  connect(view_->trainButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTrain(bool)));
-  connect(view_->testButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTest(bool)));
-  connect(model_, SIGNAL(actTrainBtn(bool)), view_->trainButton, SLOT(setEnabled(bool)));
-  connect(model_, SIGNAL(actTestBtn(bool)), view_->testButton, SLOT(setEnabled(bool)));
-  connect(model_, SIGNAL(actChartBtn(bool)), view_->chartButton, SLOT(setEnabled(bool)));
-  connect(model_, SIGNAL(trainMessage()), messages_, SLOT(train()));
-  connect(model_, SIGNAL(testMessage()), messages_, SLOT(test()));
-  connect(model_, SIGNAL(iAmReady()), messages_, SLOT(modelReady()));
-  connect(model_, SIGNAL(updateChart(double)), messages_, SLOT(updateChart(double)));
-  connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
-  connect(view_->spinBox, SIGNAL(valueChanged(int)), model_, SLOT(setEpoch(int)));
+
   connect(view_->loadTestButton, SIGNAL(clicked(bool)), this, SLOT(openTestFile(bool)));
   connect(view_->LoadTrainButton, SIGNAL(clicked(bool)), this, SLOT(openTrainFile(bool)));
+  connect(view_->layersDial, SIGNAL(valueChanged(int)),view_->lcdNumber, SLOT(display(int)));
+  connect(view_->testScrollBar, SIGNAL(valueChanged(int)),draw_area_->getConv(), SLOT(intToString(int)));
+  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
+  connect(view_->trainButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTrain(bool)));
+  connect(view_->testButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTest(bool)));
+  connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
+  connect(view_->spinBox, SIGNAL(valueChanged(int)), model_, SLOT(setEpoch(int)));
   connect(view_->chartButton, SIGNAL(clicked(bool)), messages_, SLOT(showChart(bool)));
-  connect(model_, SIGNAL(wrongFile()), this, SLOT(wrongFileError()));
+
+  connect(model_, SIGNAL(wrongFile()),
+          this, SLOT(wrongFileError()));
+  connect(model_, SIGNAL(isTrained(bool, int)),
+          this, SLOT(isTrained(bool, int)));
+  connect(model_, SIGNAL(actTestBtn(bool)),
+          view_->testButton, SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(actChartBtn(bool)),
+          view_->chartButton, SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(actTrainBtn(bool)),
+          view_->trainButton, SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(iAmReady(mStatus)),
+          messages_, SLOT(modelReady(mStatus)));
+  connect(model_, SIGNAL(updateChart(double)),
+          messages_, SLOT(updateChart(double)));
+  connect(model_, SIGNAL(dialogMsg(mStatus, std::string)),
+          messages_, SLOT(showDialogMsg(mStatus, std::string)));
+  connect(model_, SIGNAL(updateBar(int, mStatus, int)),
+          messages_, SLOT(updateBarVal(int, mStatus, int)));
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -48,7 +59,6 @@ MainWindow::MainWindow(QWidget *parent)
   view_->setupUi(this);
   SetDrawArea();
   SignalSlotsConnect();
-//  delete messages_;
   thr_model_ = new QThread(this);
   model_->moveToThread(thr_model_);
   thr_model_->start(QThread::NormalPriority);
@@ -57,10 +67,12 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow() {
   thr_model_->quit();
   thr_model_->deleteLater();
+  messages_->deleteLater();
+  draw_area_->deleteLater();
+ // delete draw_area_;
+  // delete messages_;
+  delete model_;
   delete view_;
-//  delete draw_area_;
-//  delete messages_;
-//  delete model_;
 }
 
 void MainWindow::SetDrawArea() {
@@ -125,7 +137,18 @@ void MainWindow::on_LoadWeightsButton_clicked()
     model_->ReadWeights_M(file_name.toStdString());
 }
 
-
+void MainWindow::isTrained(bool trStat, int epoch) {
+  if (!trStat){
+    view_->train_status_lablel->setText("Attention! The perceptron is not trained. "
+                                        "First load the weights for " + QString::number(model_->getLayers())
+                                        + " hidden layers or train the perceptron.");
+  }
+  else
+  {
+    view_->train_status_lablel->setText("The perceptron is trained on " +
+                                        QString::number((epoch)) + " epochs, approximately ... %");
+  }
+}
 // void MainWindow::on_spinBox_valueChanged(int arg1)
 // {
 //   model_->setEpoch(arg1);
