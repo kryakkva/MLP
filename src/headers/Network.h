@@ -41,7 +41,7 @@ enum mStatus {
       void NetworkTrain(bool b);
       void NetworkTest(bool is_auto);
       void SetTestPart(int i);
-      void setLayer(int n);
+      // void setLayer(int n);
       void setEpoch(int n);
       void ReadData(std::string filename, mStatus v);
      signals:

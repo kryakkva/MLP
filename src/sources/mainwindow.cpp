@@ -1,8 +1,8 @@
 #include "mainwindow.h"
-
 #include "./ui_view.h"
 
 namespace s21 {
+
 static void printVector(std::vector<double> &_v) {
   std::cout << "vector contains:\n";
   std::vector<double>::iterator it;
@@ -17,7 +17,7 @@ static void printVector(std::vector<double> &_v) {
   std::cout << std::endl;
 }
 
-void MainWindow::SignalSlotsConnect(){
+void MainWindow::SignalSlotsConnect() {
   connect(this, SIGNAL(LetterIs(const QString &)), view_->letterLabel, SLOT(setText(const QString &)));
   connect(this, SIGNAL(readFile(std::string, mStatus)), model_, SLOT(ReadData(std::string, mStatus)));
 
@@ -88,51 +88,36 @@ void MainWindow::PredictLetter(std::vector<double> v) {
   LetterIs(QString(QChar(model_->ForwardFeed() + 64)));
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
-{
+void MainWindow::closeEvent(QCloseEvent *event) {
   event->accept();
 }
-/*
-void MainWindow::on_load_btn_clicked()
-{
-  QString file_name = QFileDialog::getOpenFileName(this,
-                                                             tr("OpenFile"),
-                                                             QDir::homePath(),
-                                                             tr("Train (*.csv)"));
-  if (!file_name.isEmpty())
-    emit readFile(file_name.toStdString(), train_);
-  // emit readMessage();
-  // msg.exec();
-  // model_->ReadData(file_name.toStdString());
-}
-*/
 
 void MainWindow::openTrainFile(bool b) {
-  // std::thread th([&]() {});
-  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Train_file (*.csv)");
+  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile",
+                                                   QDir::homePath(), "Train_file (*.csv)");
   if (!file_name.isEmpty())
       emit readFile(file_name.toStdString(), train_);
 }
 
 void MainWindow::openTestFile(bool b) {
-  // std::thread th([&]() {});
-  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Test_file (*.csv)");
+  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile",
+                                                   QDir::homePath(), "Test_file (*.csv)");
   if (!file_name.isEmpty())
       emit readFile(file_name.toStdString(), test_);
 }
 
 
-void MainWindow::on_saveWeightsButton_clicked()
-{
-  QString file_name = QFileDialog::getSaveFileName(this, "Open weights file", QDir::homePath(), "Weights_file (*.mlp)");
+void MainWindow::on_saveWeightsButton_clicked() {
+  QString file_name = QFileDialog::getSaveFileName(this, "Open weights file",
+                                                   QDir::homePath(), "Weights_file (*.mlp)");
   if (!file_name.isEmpty())
     model_->SaveWeights_M(file_name.toStdString());
 }
 
 
-void MainWindow::on_LoadWeightsButton_clicked()
-{
-  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile", QDir::homePath(), "Weights_file (*.mlp)");
+void MainWindow::on_LoadWeightsButton_clicked() {
+  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile",
+                                                   QDir::homePath(), "Weights_file (*.mlp)");
   if (!file_name.isEmpty())
     model_->ReadWeights_M(file_name.toStdString());
 }
@@ -143,20 +128,13 @@ void MainWindow::isTrained(bool trStat, int epoch) {
                                         "First load the weights for " + QString::number(model_->getLayers())
                                         + " hidden layers or train the perceptron.");
   }
-  else
-  {
+  else {
     view_->train_status_lablel->setText("The perceptron is trained on " +
                                         QString::number((epoch)) + " epochs, approximately ... %");
   }
 }
-// void MainWindow::on_spinBox_valueChanged(int arg1)
-// {
-//   model_->setEpoch(arg1);
-// }
 
-
-void MainWindow::on_layersDial_sliderReleased()
-{
+void MainWindow::on_layersDial_sliderReleased() {
   model_->reInitNet(view_->lcdNumber->intValue());
 }
 

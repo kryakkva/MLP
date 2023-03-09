@@ -11,8 +11,8 @@
 
 namespace s21 {
 Network::Network(QObject *parent) : _hidden(2), _epoch(10), _typeNet(0), test_part_(1), break_(false){
-  QDir dir(qApp->applicationDirPath());
-  dir.cd("../");
+  // QDir dir(qApp->applicationDirPath());
+  // dir.cd("../");
   // content_dir_ = dir.absolutePath().toStdString();
   // std::cout << "Contents dir ->" << content_dir_ << std::endl;
   initNet();
@@ -69,7 +69,8 @@ void Network::initNet() {
 
 void Network::reInitNet(int l) {
   destroyNet();
-  setLayer(l);
+  _hidden = l;
+  // setLayer(l);
   initNet();
 }
 
@@ -409,7 +410,7 @@ int Network::getLayers() {return _hidden;}
 
 void Network::setTypeNet(int n) {_typeNet = n;}
 
-void Network::setLayer(int n) {_hidden = n; std::cout << "Set " << _hidden << " layers\n";}
+// void Network::setLayer(int n) {_hidden = n; std::cout << "Set " << _hidden << " layers\n";}
 
 void Network::setEpoch(int n) {_epoch = n; std::cout << "Set " << _epoch << " epochs\n";}
 
