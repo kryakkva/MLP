@@ -33,7 +33,7 @@ class Layer {
   const std::vector<Neuron*>& neurons() const;
   void alterWeights(const std::vector<std::vector<double> >& weights);
   void shiftBackWeights(double lr);
-  std::vector<std::vector<double*> > getWeights();
+  std::vector<std::vector<double> > getWeights();
   void randomizeAllWeights(double d);
   void randomizeAllBias(double d);
   void getBackPropagationShifts(double expect);

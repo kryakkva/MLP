@@ -53,10 +53,10 @@ void Neuron::alterWeights(const std::vector<double>& weights) {
     _next[i_edge]->alterWeight(weights[i_edge]);
 }
 
-std::vector<double*> Neuron::getWeights() {
-  std::vector<double*> w;
+std::vector<double> Neuron::getWeights() {
+  std::vector<double> w;
   for (size_t i_edge = 0; i_edge < _next.size(); ++i_edge)
-    w.push_back(_next[i_edge]->weightP());
+    w.push_back(_next[i_edge]->weight());
   return w;
 }
 

@@ -19,10 +19,14 @@ class NeuralNetwork {
   int _hiddenVal;
   std::vector<std::vector<double>> _vector_train;
   std::vector<std::vector<double>> _vector_test;
+  std::vector<std::vector<double>> _vector_train_cross;
+  std::vector<std::vector<double>> _vector_test_cross;
 
   NeuralNetwork();
   ~NeuralNetwork();
   void reInitNet();
+  void reSaveStudy();
+  void reLoadStudy();
   void setInput(std::vector<double> values, int fl = 1);
   double networkTest(std::vector<std::vector<double>> value);
   double networkTrain(std::vector<std::vector<double>> value);
@@ -41,7 +45,7 @@ class NeuralNetwork {
   void addLayer(std::unordered_map<std::string, double> parameters);
   void clean();
   std::vector<double> output();
-  std::vector<std::vector<std::vector<double *>>> getWeights();
+  std::vector<std::vector<std::vector<double>>> getWeights();
   void alterWeights(
       const std::vector<std::vector<std::vector<double>>> &weights);
   void saveWeights(std::string filename);
@@ -53,11 +57,14 @@ class NeuralNetwork {
   int getTypeNet();
   void setEpoch(int n);
   double getMaxRa();
+  void crossVal(int e);
+  void setCrossVal(int c);
   std::chrono::duration<double> getTime();
 
  private:
   int _typeNet;
   int _hidden;
+  int _crossVal = 0;
   int _epoch;
   int _counter;
   double _maxRa;
@@ -69,6 +76,10 @@ class NeuralNetwork {
   std::chrono::duration<double> _time;
   std::vector<Layer *> _layers;
   std::vector<std::unordered_map<std::string, double>> _configuration;
+  std::vector<std::vector<std::vector<double>>> _w_temp;
+  std::vector<std::vector<double>> _b_temp;
+  bool _reWrite = false;
+
 
   void initNet();
 };

@@ -12,52 +12,73 @@ int main() {
 
   NeuralNetwork net;
 
-  if (net._vector_train.empty())
-    net._vector_train =
-        net.readData("../datasets/emnist-letters/emnist-letters-train.csv");
-  size_t ex_train = net._vector_train.size();
+//    net.setEpoch(1);
+//    net._typeNetVal = 1;
+//    net.reInitNet();
 
-  net.setEpoch(5);
-  net._typeNetVal = 1;
-  net.reInitNet();
+
+   if (net._vector_train.empty())
+   net._vector_train =
+        net.readData("/Users/apaege/MLP_my_and_other/MLP/datasets/emnist-letters/emnist-letters-train.csv");
+  if (net._vector_test.empty())
+      net._vector_test =
+              net.readData("/Users/apaege/MLP_my_and_other/MLP/datasets/emnist-letters/emnist-letters-test.csv");
+
+  net.setCrossVal(9);
+
 
   auto begin = std::chrono::steady_clock::now();
   for (int i = 0; i < net.getEpoch(); ++i) {
-    ra = net.networkTrain(net._vector_train);
+    net.crossVal(i);
+      size_t ex_train = net._vector_train_cross.size();
+      size_t ex_tests = net._vector_test_cross.size();
+//      printf("TEST\n");
+    ra = net.networkTrain(net._vector_train_cross);
     std::cout << "Train RA: " << ra / ex_train * 100
               << "\tmaxra: " << net.getMaxRa() / ex_train * 100
               << "\tepoch: " << i + 1 << "\tTIME: " << net.getTime().count()
               << std::endl;
+
+      auto begin2 = std::chrono::steady_clock::now();
+      ra = net.networkTest(net._vector_test_cross);
+      auto end2 = std::chrono::steady_clock::now();
+      time = end2 - begin2;
+      std::cout << "Test RA: " << ra / ex_tests * 100 << " % Error: " << 100 - (ra / ex_tests * 100) << std::endl;
+
   }
   auto end = std::chrono::steady_clock::now();
   time = end - begin;
   std::cout << std::endl
             << "TIME: " << time.count() / 60. << "min" << std::endl;
 
-  net.saveWeights("../src_data/new_weights/2layers.mlp");
-  //    net._typeNetVal = 1;
-  //    net.reInitNet();
-  //    net.readWeights("../src_data/new_weights/2layers.mlp");
 
+//  net.saveWeights("../src_data/new_weights/2layers.mlp");
+//  net._typeNetVal = 0;
+//  net.reInitNet();
+//  net.readWeights("../src_data/new_weights/2layers.mlp");
+
+/*
   //    net._typeNetVal = 0;
   //    net.reInitNet();
+    if (net._vector_test.empty())
+        net._vector_test =
+                net.readData("/Users/apaege/MLP_my_and_other/MLP/datasets/emnist-letters/emnist-letters-test.csv");
+//    size_t ex_tests = net._vector_test.size();
 
-  std::cout << "_TypeNet = " << net.getTypeNet()
-            << " _hidden = " << net.getLayer() << std::endl;
-  if (net._vector_test.empty())
-    net._vector_test =
-        net.readData("../datasets/emnist-letters/emnist-letters-test.csv");
-  size_t ex_tests = net._vector_test.size();
   auto begin2 = std::chrono::steady_clock::now();
-  ra = net.networkTest(net._vector_test);
+  ra = net.networkTest(net._vector_test_cross);
   auto end2 = std::chrono::steady_clock::now();
   time = end2 - begin2;
   std::cout << "_TypeNet = " << net.getTypeNet()
             << " _hidden = " << net.getLayer()
-            << " Test RA: " << ra / ex_tests * 100 << std::endl;
+            << " Test RA: " << ra / ex_tests * 100 << " % Error: " << 100 - (ra / ex_tests * 100) << std::endl;
   std::cout << std::endl
             << "TIME: " << time.count() / 60. << "min" << std::endl
             << std::endl;
+*/
+
+
+
 
   /*
       net._typeNetVal = 1;

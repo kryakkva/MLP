@@ -32,7 +32,7 @@ class Neuron {
   void setAccumulated(double v);
   void setBias(double v);
   void alterWeights(const std::vector<double>& weights);
-  std::vector<double*> getWeights();
+  std::vector<double> getWeights();
   void randomizeAllWeights(double d);
   void randomizeAllBias(double d);
   void shiftBackWeights(double lr);

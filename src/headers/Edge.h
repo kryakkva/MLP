@@ -21,7 +21,6 @@ class Edge {
   Neuron* neuron() const;
   Neuron* neuronb() const;
   double weight() const;
-  double* weightP();
   void propagate(double neuron_output);
   void alterWeight(double w);
   void shiftWeight(double d);
