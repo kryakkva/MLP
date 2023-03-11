@@ -470,13 +470,15 @@ void NeuralNetwork::setEpoch(int n) { _epoch = n; }
 double NeuralNetwork::getMaxRa() { return _maxRa; }
 
 void NeuralNetwork::crossVal(int e) {
-    if (!_crossVal && !e) {
-        _vector_train_cross.clear();
-        _vector_test_cross.clear();
-        for (size_t i = 0; i < _vector_test.size(); ++i)
-            _vector_test_cross.push_back(_vector_test[i]);
-        for (size_t i = 0; i < _vector_train.size(); ++i)
-            _vector_train_cross.push_back(_vector_train[i]);
+    if (!_crossVal) {
+        if (!e) {
+            _vector_train_cross.clear();
+            _vector_test_cross.clear();
+            for (size_t i = 0; i < _vector_test.size(); ++i)
+                _vector_test_cross.push_back(_vector_test[i]);
+            for (size_t i = 0; i < _vector_train.size(); ++i)
+                _vector_train_cross.push_back(_vector_train[i]);
+        }
     }
     else {
         _vector_train_cross.clear();
