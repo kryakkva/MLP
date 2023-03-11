@@ -2,7 +2,7 @@
 #include "ui_messages.h"
 namespace s21 {
 
-Messages::Messages(Network &model, QWidget *parent) :
+Messages::Messages(NeuralNetwork &model, QWidget *parent) :
     QDialog(parent), model_(model), ui(new Ui::Messages), isChart_(false) {
   ui->setupUi(this);
   chart_ = new QChart();

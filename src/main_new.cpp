@@ -2,7 +2,7 @@
 // Created by apaege on 17.02.2023.
 //
 
-#include "headers/Network.h"
+#include "headers/NeuralNetwork.h"
 
 using namespace s21;
 

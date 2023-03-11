@@ -8,19 +8,19 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QProgressBar>
-#include "Network.h"
+#include "NeuralNetwork.h"
 #include "messages.h"
 
 namespace s21 {
 class StateMessages : public QObject {
   Q_OBJECT
  public:
-  StateMessages(Network &model, QObject *parent = nullptr);
+  StateMessages(NeuralNetwork &model, QObject *parent = nullptr);
   ~StateMessages() noexcept;
  private:
   Messages *msg_;
   QDialog msgBox_;
-  Network &model_;
+  NeuralNetwork &model_;
   QProgressBar *bar_;
   QPushButton *break_btn_;
   QPushButton *ok_btn_;

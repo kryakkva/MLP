@@ -31,22 +31,28 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS forms)
 set(SOURCES
         main.cpp
         sources/mainwindow.cpp
-        sources/ActivateFunction.cpp
+        sources/Function.cpp
         sources/Matrix.cpp
-        sources/Network.cpp
+        sources/NeuralNetwork.cpp
         sources/drawarea.cpp
         sources/converter.cpp
         sources/messages.cpp
+        sources/Edge.cpp
+        sources/Layer.cpp
+        sources/Neuron.cpp
         )
 
 set(HEADERS
         headers/mainwindow.h
-        headers/ActivateFunction.h
+        headers/Function.h
         headers/Matrix.h
-        headers/Network.h
+        headers/NeuralNetwork.h
         headers/drawarea.h
         headers/converter.h
         headers/messages.h
+        headers/Edge.h
+        headers/Layer.h
+        headers/Neuron.h
         )
 
 set(FORMS
@@ -58,7 +64,7 @@ set(PROJECT_SOURCES
         ${SOURCES}
         ${HEADERS}
         ${FORMS}
-        headers/StateMessage.cpp headers/StateMessage.h)
+)
 
 if (APPLE)
   set(MACOSX_BUNDLE_ICON_FILE neuro_.png)

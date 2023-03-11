@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "Network.h"
+#include "NeuralNetwork.h"
 #include "drawarea.h"
 // #include "StateMessage.h"
 #include "messages.h"
@@ -37,7 +37,6 @@ class MainWindow : public QMainWindow {
   void on_saveWeightsButton_clicked();
   void on_LoadWeightsButton_clicked();
   void isTrained(bool, int);
-
 signals:
   void LetterIs(const QString &);
 
@@ -47,7 +46,7 @@ signals:
  private:
   Ui::View *view_;
   DrawArea *draw_area_;
-  Network *model_;
+  NeuralNetwork *model_;
   Messages *messages_;
 
   QThread *thr_model_ = nullptr;

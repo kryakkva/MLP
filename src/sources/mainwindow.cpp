@@ -19,7 +19,7 @@ static void printVector(std::vector<double> &_v) {
 
 void MainWindow::SignalSlotsConnect() {
   connect(this, SIGNAL(LetterIs(const QString &)), view_->letterLabel, SLOT(setText(const QString &)));
-  connect(this, SIGNAL(readFile(std::string, mStatus)), model_, SLOT(ReadData(std::string, mStatus)));
+  connect(this, SIGNAL(readFile(std::string, mStatus)), model_, SLOT(readData(std::string, mStatus)));
 
   connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),view_->testPartLabel, SLOT(setText(const QString &)));
 
@@ -28,11 +28,12 @@ void MainWindow::SignalSlotsConnect() {
   connect(view_->layersDial, SIGNAL(valueChanged(int)),view_->lcdNumber, SLOT(display(int)));
   connect(view_->testScrollBar, SIGNAL(valueChanged(int)),draw_area_->getConv(), SLOT(intToString(int)));
   connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
-  connect(view_->trainButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTrain(bool)));
-  connect(view_->testButton, SIGNAL(clicked(bool)), model_, SLOT(NetworkTest(bool)));
+  connect(view_->trainButton, SIGNAL(clicked(bool)), model_, SLOT(networkTrain(bool)));
+  connect(view_->testButton, SIGNAL(clicked(bool)), model_, SLOT(networkTest(bool)));
   connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
   connect(view_->spinBox, SIGNAL(valueChanged(int)), model_, SLOT(setEpoch(int)));
   connect(view_->chartButton, SIGNAL(clicked(bool)), messages_, SLOT(showChart(bool)));
+  connect(view_->graphRadioButton, SIGNAL(toggled(bool)), model_, SLOT(setTypeNet(bool)));
 
   connect(model_, SIGNAL(wrongFile()),
           this, SLOT(wrongFileError()));
@@ -55,7 +56,7 @@ void MainWindow::SignalSlotsConnect() {
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), view_(new Ui::View), model_(new Network()), messages_(new Messages(*model_ )) {
+    : QMainWindow(parent), view_(new Ui::View), model_(new NeuralNetwork()), messages_(new Messages(*model_ )) {
   view_->setupUi(this);
   SetDrawArea();
   SignalSlotsConnect();
@@ -84,8 +85,8 @@ void MainWindow::SetDrawArea() {
 }
 
 void MainWindow::PredictLetter(std::vector<double> v) {
-  model_->SetInput(v, 0);
-  LetterIs(QString(QChar(model_->ForwardFeed() + 64)));
+  model_->setInput(v, 0);
+  LetterIs(QString(QChar(model_->forwardFeed() + 64)));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -111,7 +112,7 @@ void MainWindow::on_saveWeightsButton_clicked() {
   QString file_name = QFileDialog::getSaveFileName(this, "Open weights file",
                                                    QDir::homePath(), "Weights_file (*.mlp)");
   if (!file_name.isEmpty())
-    model_->SaveWeights_M(file_name.toStdString());
+    model_->saveWeights(file_name.toStdString());
 }
 
 
@@ -119,13 +120,13 @@ void MainWindow::on_LoadWeightsButton_clicked() {
   QString file_name = QFileDialog::getOpenFileName(this, "OpenFile",
                                                    QDir::homePath(), "Weights_file (*.mlp)");
   if (!file_name.isEmpty())
-    model_->ReadWeights_M(file_name.toStdString());
+    model_->readWeights(file_name.toStdString());
 }
 
 void MainWindow::isTrained(bool trStat, int epoch) {
   if (!trStat){
     view_->train_status_lablel->setText("Attention! The perceptron is not trained. "
-                                        "First load the weights for " + QString::number(model_->getLayers())
+                                        "First load the weights for " + QString::number(model_->getLayer())
                                         + " hidden layers or train the perceptron.");
   }
   else {

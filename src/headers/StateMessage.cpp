@@ -5,7 +5,7 @@
 #include "StateMessage.h"
 
 namespace s21 {
-StateMessages::StateMessages(Network &model, QObject *parent) : QObject(parent), model_(model) {}
+StateMessages::StateMessages(NeuralNetwork &model, QObject *parent) : QObject(parent), model_(model) {}
 
 StateMessages::~StateMessages() noexcept {
 }

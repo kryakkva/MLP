@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QEvent>
 #include <QtCharts/QtCharts>
-#include "Network.h"
+#include "NeuralNetwork.h"
 
 namespace s21 {
 
@@ -17,7 +17,7 @@ class Messages : public QDialog
     Q_OBJECT
 
 public:
-  explicit Messages(Network &model, QWidget *parent = nullptr);
+  explicit Messages(NeuralNetwork &model, QWidget *parent = nullptr);
   ~Messages();
 private slots:
   // void readingFile(std::string str);
@@ -35,7 +35,7 @@ private slots:
 
 private:
   Ui::Messages *ui;
-  Network &model_;
+  NeuralNetwork &model_;
   QBarSet *set_;
   QBarSeries *series_;
   QChart *chart_;

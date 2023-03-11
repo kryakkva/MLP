@@ -2,7 +2,7 @@
 // Created by apaege on 25.12.2022.
 //
 
-#include "Network.h"
+#include "NeuralNetwork.h"
 #include <chrono>
 #include <string>
 
