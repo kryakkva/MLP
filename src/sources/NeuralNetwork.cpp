@@ -75,9 +75,12 @@ void NeuralNetwork::reSaveStudy() {
     }
     else {
         _w_temp = getWeights();
-        for (size_t i = 1; i < _layers.size(); ++i)
+        _b_temp.resize(_layers.size() - 1);
+        for (size_t i = 1; i < _layers.size(); ++i) {
+            _b_temp[i - 1].resize(_layers[i]->neurons().size());
             for (size_t k = 0; k < _layers[i]->neurons().size(); ++k)
                 _b_temp[i - 1][k] = _layers[i]->neurons()[k]->getBias();
+        }
     }
     _reWrite = true;
 }
