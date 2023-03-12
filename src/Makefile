@@ -1,36 +1,44 @@
-#################################################
-##              Makefile template              ##
-#################################################
+NAME			= MLP
+SRCS_D			= sources/
+SRCS_H			= headers/
 
-SOURCES = ./headers/* ./sources/*
 
-#     These special targets are called phony     #
-.PHONY: all dist clean install uninstall dvi build
+SRCS 			= $(addprefix $(SRCS_D), ../main.cpp Function.cpp Matrix.cpp Edge.cpp Layer.cpp Neuron.cpp NeuralNetwork.cpp)
+#SRCS			= $(addprefix $(SRCS_D),Matrix.cpp Function.cpp NeuralNetwork.cpp)
+HEADER			= $(addprefix $(SRCS_H), Function.h Matrix.h Edge.h Layer.h Neuron.h NeuralNetwork.h)
+#HEADER			= $(addprefix $(SRCS_D), Matrix.h Function.h NeuralNetwork.h)
+OBJS_D			= objs/
+OBJS_S			= objs/sources/
 
-build: ########################
-	cmake -S . -B ./../build
-	cmake --build ./../build
+OBJS			= $(SRCS:.cpp=.o)
+OBJ_S			= $(addprefix $(OBJS_D), $(OBJS))
 
-install: build ########################
-	cp -rf ./../build/MLP.app $(HOME)/Applications/
+CC				= c++
+RM				= rm -rf
+#FL				= -std=c++17
+FL				= -Wshadow -Wall -Wextra -Werror -std=c++17
 
-uninstall: ########################
-	rm -rf $(HOME)/Applications/MLP.app
+all:			$(OBJS_S) $(NAME)
 
-############ Cleaning up unused files ############
-clean: ########################
-	rm -rf ./../build
+$(OBJS_S):
+	mkdir -p $(OBJS_S)
 
-################## Style check ###################
-style: ########################
-	clang-format -n -verbose -style=Google $(SOURCES)
+$(OBJS_D)%.o: %.cpp $(HEADER)
+	$(CC) $(FL) -c -o $@ $< 
 
-cppcheck: ########################
-	cppcheck --std=c++17 --suppress=syntaxError $(SOURCES)
-##############  Project archiving   ##############
-dist: clean ########################
-	tar -czf MLP.tgz ./*
+$(NAME):		$(OBJ_S)
+				$(CC) $(FL) -o $(NAME) $(OBJ_S)
 
-##############     show instuction      ##############
-dvi: ########################
-	open documentation/README.md
+clean:
+				$(RM) $(OBJ_D) $(OBJS_D)
+
+fclean:			clean
+				$(RM) $(NAME)
+
+re:				fclean all
+
+format:
+				clang-format -i -style=google sources/*.cpp headers/*.h
+				clang-format -n -style=google sources/*.cpp headers/*.h
+
+.PHONY:			all clean fclean re
