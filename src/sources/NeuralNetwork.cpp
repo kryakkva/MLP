@@ -8,9 +8,10 @@
 #include <QFileDialog>
 #include <mach-o/dyld.h>
 #include <QtCore>
+#include <unistd.h>
 
 namespace s21 {
-NeuralNetwork::NeuralNetwork(QObject *parent) : _typeNet(0), _hidden(2), _epoch(10), test_part_(1), break_(false){
+NeuralNetwork::NeuralNetwork(QObject *parent) : _typeNet(true), _hidden(2), _epoch(10), test_part_(1), break_(false){
   initNet();
 }
 
@@ -18,8 +19,8 @@ NeuralNetwork::~NeuralNetwork() { destroyNet(); }
 
 void NeuralNetwork::initNet() {
   srand(time(NULL));
-  _hiddenVal = _hidden;
-  _typeNetVal = _typeNet;
+  // _hiddenVal = _hidden;
+  // _typeNetVal = _typeNet;
   _maxRa = 0;
   _counter = 0;
   if (!_typeNet) {
@@ -41,21 +42,77 @@ void NeuralNetwork::initNet() {
       _neurons_err[i] = new double[_layerSize[i]];
     }
   } else {
+    write(1, "graph_cr_st\n", 12);
     addLayer({{"type", layerType::INPUT}, {"size", 784}});
-    for (int i = 0; i < _hidden; ++i)
+    for (int i = 0; i < _hidden; ++i) {
       addLayer({{"type", layerType::STANDARD}, {"size", 150}});
+    }
     addLayer({{"type", layerType::OUTPUT}, {"size", 26}});
     autogenerate();
+    write(1, "graph_cr_fn\n", 12);
+
   }
   emit isTrained(false);
+  write(1, "INIT_DONE\n", 10);
   // std::cout << "init net done\n" ;
 }
 
-void NeuralNetwork::reInitNet(int l) {
+void NeuralNetwork::reInitNet(int _hiddenVal, bool _typeNetVal) {
+  write(1, "ReinitStart\n", 12);
+  // if (_typeNetVal != _typeNet && _hiddenVal == _hidden)
+  //   reSaveStudy();
   destroyNet();
-  _hidden = l;
-  // setLayer(l);
+    _hidden = _hiddenVal;
+    _typeNet = _typeNetVal;
   initNet();
+  // if (_reWrite)
+  //   reLoadStudy();
+  write(1, "ReinitDone\n", 11);
+}
+
+void NeuralNetwork::reSaveStudy() {
+  _w_temp.clear();
+  _b_temp.clear();
+  if (!_typeNet) {
+    _w_temp.resize(_layerSize.size() - 1);
+    _b_temp.resize(_layerSize.size() - 1);
+    for (size_t i = 0; i < _layerSize.size() - 1; ++i) {
+      _w_temp[i].resize(_layerSize[i]);
+      for (int j = 0; j < _layerSize[i]; ++j) {
+        _w_temp[i][j].resize(_layerSize[i + 1]);
+        _b_temp[i].resize(_layerSize[i + 1]);
+        for (int k = 0; k < _layerSize[i + 1]; k++) {
+          _w_temp[i][j][k] = _weights[i](k, j);
+          _b_temp[i][k] = _bias[i][k];
+        }
+      }
+    }
+  }
+  else {
+    _w_temp = getWeights();
+    for (size_t i = 1; i < _layers.size(); ++i)
+      for (size_t k = 0; k < _layers[i]->neurons().size(); ++k)
+        _b_temp[i - 1][k] = _layers[i]->neurons()[k]->getBias();
+  }
+  _reWrite = true;
+}
+
+void NeuralNetwork::reLoadStudy() {
+  if (!_typeNet) {
+    for (size_t i = 0; i < _layerSize.size() - 1; ++i)
+      for (int j = 0; j < _layerSize[i]; ++j)
+        for (int k = 0; k < _layerSize[i + 1]; k++) {
+          _weights[i](k, j) = _w_temp[i][j][k];
+          _bias[i][k] = _b_temp[i][k];
+        }
+  }
+  else {
+    alterWeights(_w_temp);
+    for (size_t i = 1; i < _layers.size(); ++i)
+      for (size_t k = 0; k < _layers[i]->neurons().size(); ++k)
+        _layers[i]->neurons()[k]->setBias(_b_temp[i - 1][k]);
+  }
+  _reWrite = false;
 }
 
 void NeuralNetwork::setInput(std::vector<double> values, int fl) {
@@ -68,21 +125,6 @@ void NeuralNetwork::setInput(std::vector<double> values, int fl) {
       _layers[0]->neurons()[i]->setAccumulated(values[i + fl]);
   }
 }
-/*
-double NeuralNetwork::NetworkTest(std::vector<std::vector<double>> value) {
-  double ra = 0;
-  double right;
-  int predict;
-  for (int i = 0; i < value.size(); ++i) {
-    SetInput(value[i]);
-    predict = ForwardFeed();
-    right = value[i][0];
-    if (right == predict)
-      ra++;
-  }
-  return (ra);
-}
-*/
 
 void NeuralNetwork::networkTest(bool is_auto) {
   double ra = 0;
@@ -98,11 +140,8 @@ void NeuralNetwork::networkTest(bool is_auto) {
     if (!_typeNet)
       predict = forwardFeed();
     else {
-      std::cout << "1";
       trigger();
-      std::cout << "2";
       predict = searchMaxIndexGraph(output());
-      std::cout << "3";
     }
     right = _vector_test[(int)i][0];
     if (right == predict)
@@ -119,44 +158,25 @@ void NeuralNetwork::networkTest(bool is_auto) {
   std::cout << "error " << 100 - ra * 100 / (_vector_test.size()*test_part_)<< std::endl;
 }
 
-/*
-  double NeuralNetwork::NetworkTrain(std::vector<std::vector<double>> value) {
-      double ra = 0;
-      double right;
-      int predict;
-
-      auto t1 = std::chrono::steady_clock::now();
-      for (int i = 0; i < value.size(); ++i) {
-          SetInput(value[i]);
-          predict = ForwardFeed();
-          right = value[i][0];
-          if (right != predict) {
-              BackPropogation(right);
-              WeightsUpdater(2.1 * pow(2.1, -_counter / 10.));
-          }
-          else
-              ra++;
-      }
-      auto t2 = std::chrono::steady_clock::now();
-      _time = t2 - t1;
-      _counter++;
-      if (ra > _maxRa)
-          _maxRa = ra;
-      return (ra);
-  }
-*/
 void NeuralNetwork::networkTrain(bool b) {
   double ra;
   double right;
   double predict;
   break_ = false;
+  std::vector<std::vector<double>> value;
+  if (!_crossVal)
+    value = _vector_train;
   emit dialogMsg(train_);
   auto t1 = std::chrono::steady_clock::now();
   for (int j = 0; j < _epoch && !break_; j++) {
     auto t1 = std::chrono::steady_clock::now();
     ra = 0;
-    for (int i = 0; i < _vector_train.size() && !break_; i++) {
-      setInput(_vector_train[i]);
+    if (_crossVal){
+      crossVal(j);
+      value = _vector_train_cross;
+    }
+    for (int i = 0; i < value.size() && !break_; i++) {
+      setInput(value[i]);
       if (!_typeNet) {
         predict = forwardFeed();
       }
@@ -164,7 +184,7 @@ void NeuralNetwork::networkTrain(bool b) {
         trigger();
         predict = searchMaxIndexGraph(output());
       }
-      right = _vector_train[i][0];
+      right = value[i][0];
       if (right != predict) {
         if (!_typeNet) {
           backPropagation(right);
@@ -175,8 +195,8 @@ void NeuralNetwork::networkTrain(bool b) {
         }
       } else
         ra++;
-      if (!(i % (_vector_train.size()/100)) && !break_){
-        emit updateBar(i / (_vector_train.size()/100), train_, j + 1);
+      if (!(i % (value.size()/100)) && !break_){
+        emit updateBar(i / (value.size()/100), train_, j + 1);
       }
     }
     auto t2 = std::chrono::steady_clock::now();
@@ -289,8 +309,9 @@ void NeuralNetwork::autogenerate() {
 }
 
 void NeuralNetwork::connectComplete() {
-  for (size_t i_layer = 0; i_layer < _layers.size() - 1; ++i_layer)
+  for (size_t i_layer = 0; i_layer < _layers.size() - 1; ++i_layer){
     _layers[i_layer]->connectComplete(_layers[i_layer + 1]);
+  }
 }
 
 void NeuralNetwork::randomizeAllWeightsBias() {
@@ -314,8 +335,8 @@ std::vector<double> NeuralNetwork::output() {
   return (_layers.back())->output();
 }
 
-std::vector<std::vector<std::vector<double *>>> NeuralNetwork::getWeights() {
-  std::vector<std::vector<std::vector<double *>>> w;
+std::vector<std::vector<std::vector<double>>> NeuralNetwork::getWeights() {
+  std::vector<std::vector<std::vector<double>>> w;
   for (size_t i_layer = 0; i_layer < _layers.size() - 1; ++i_layer)
     w.push_back(_layers[i_layer]->getWeights());
   return w;
@@ -345,7 +366,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
     for (int i = 0; i < _hidden + 2; ++i)
       fout << " " << _layers[i]->neurons().size();
     fout << std::endl;
-    std::vector<std::vector<std::vector<double *>>> w;
+    std::vector<std::vector<std::vector<double>>> w;
     w = getWeights();
     for (size_t i_layer = 0; i_layer < _layers.size() - 1; ++i_layer)
       for (size_t i_neuron = 0; i_neuron < _layers[i_layer]->neurons().size();
@@ -354,7 +375,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
              i_edge <
                  _layers[i_layer]->neurons()[i_neuron]->getNextEdge().size();
              ++i_edge)
-          fout << *w[i_layer][i_neuron][i_edge] << " ";
+          fout << w[i_layer][i_neuron][i_edge] << " ";
     for (size_t i_layer = 1; i_layer < _layers.size(); ++i_layer)
       for (size_t i_neuron = 0; i_neuron < _layers[i_layer]->neurons().size();
            ++i_neuron)
@@ -364,6 +385,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
   fout.close();
 }
 
+/*
 void NeuralNetwork::readWeights(std::string filename) {
   std::ifstream           fin;
   fin.open(filename);
@@ -452,6 +474,7 @@ void NeuralNetwork::readWeights(std::string filename) {
   fin.close();
   emit isTrained(true);
 }
+*/
 
 void NeuralNetwork::readData(std::string filename, mStatus v) {
   break_ = false;
@@ -500,6 +523,88 @@ void NeuralNetwork::readData(std::string filename, mStatus v) {
       emit actTrainBtn(true);
   }
 }
+void NeuralNetwork::readWeights(std::string filename) {
+  std::ifstream fin;
+  fin.open(filename);
+  if (!fin.is_open()) {
+    std::cout << "Error reading file " << filename << std::endl;
+    exit(0);
+  }
+  std::string test;
+  std::getline(fin, test);
+  if (test.compare("This is weights file") != 0) {
+    printf("You open wrong file!!!\n");
+    exit(0);
+  }
+  std::vector<int> line;
+  double num;
+  while (fin.get() != '\n') {
+    fin >> num;
+    if (num - (int)num != 0) {
+      printf("Wrong in file 2\n");
+      exit(0);
+    }
+    line.push_back(static_cast<int>(num));
+  }
+
+  if (_hidden + 2 != (int)line.size()) {
+    printf("Wrong in file 3\n");
+    exit(0);
+  }
+  int multi = 0;
+  int count = 0;
+  if (!_typeNet) {
+    for (int x = 0; x < _hidden + 1; ++x) {
+      multi += (line[x] * line[x + 1]);
+      for (int i = 0; i < _weights[x].getCol(); ++i)
+        for (int j = 0; j < _weights[x].getRow(); ++j, count++)
+          fin >> _weights[x](j, i);
+    }
+    for (int i = 0; i < _hidden + 1; ++i) {
+      multi += line[i + 1];
+      for (int j = 0; j < _layerSize[i + 1]; ++j) {
+        fin >> _bias[i][j];
+        if (!fin.eof()) count++;
+      }
+    }
+  } else {
+    std::vector<std::vector<std::vector<double>>> w(_layers.size());
+    for (size_t i_layer = 0; i_layer < _layers.size() - 1; ++i_layer) {
+      multi += (line[i_layer] * line[i_layer + 1]);
+      w[i_layer].resize(_layers[i_layer]->neurons().size());
+      for (size_t i_neuron = 0; i_neuron < _layers[i_layer]->neurons().size();
+           ++i_neuron) {
+        w[i_layer][i_neuron].resize(
+            _layers[i_layer]->neurons()[i_neuron]->getNextEdge().size());
+        for (size_t i_edge = 0;
+             i_edge <
+                 _layers[i_layer]->neurons()[i_neuron]->getNextEdge().size();
+             ++i_edge, count++)
+          fin >> w[i_layer][i_neuron][i_edge];
+      }
+    }
+    alterWeights(w);
+    for (size_t i_layer = 1; i_layer < _layers.size(); ++i_layer) {
+      multi += line[i_layer];
+      for (size_t i_neuron = 0; i_neuron < _layers[i_layer]->neurons().size();
+           ++i_neuron) {
+        double tmp;
+        fin >> tmp;
+        _layers[i_layer]->neurons()[i_neuron]->setBias(tmp);
+        if (!fin.eof()) count++;
+      }
+    }
+  }
+  double temp;
+  fin >> temp;
+  if (!fin.eof()) count++;
+  if (count != multi) {
+    printf("Amount of number is wrong!!!\n");
+    exit(0);
+  }
+  std::cout << filename << " readed \n";
+  fin.close();
+}
 
 void NeuralNetwork::destroyNet() {
   if (!_typeNet) {
@@ -519,11 +624,61 @@ void NeuralNetwork::destroyNet() {
   }
 }
 
+void NeuralNetwork::crossVal(int e) {
+  if (!_crossVal) {
+    if (!e) {
+      _vector_train_cross.clear();
+      _vector_test_cross.clear();
+      for (size_t i = 0; i < _vector_test.size(); ++i)
+        _vector_test_cross.push_back(_vector_test[i]);
+      for (size_t i = 0; i < _vector_train.size(); ++i)
+        _vector_train_cross.push_back(_vector_train[i]);
+    }
+  }
+  else {
+    _vector_train_cross.clear();
+    _vector_test_cross.clear();
+    double coeff = 1 - ((_crossVal - 1.) / _crossVal);
+    size_t tmp = 0;
+    size_t tmp_1 = 0;
+    std::cout << "coeff = " << 1 - ((_crossVal - 1.) / _crossVal) << std::endl << std::endl;
+    std::cout << "Train_vector_part_1 from 0 to ";
+    if (_crossVal == 1) {
+      for (size_t i = 0; i < _vector_train.size(); ++i)
+        _vector_train_cross.push_back(_vector_train[i]);
+      std::cout << _vector_train.size() << " size = " << _vector_train.size() << std::endl << std::endl;
+      std::cout << "Test_vector is clear!!!" << std::endl << std::endl;
+      std::cout << "Train_vector_part_2 is clear!!!" << std::endl << std::endl;
+    }
+    else {
+      for (size_t i = 0; i < (size_t) (_vector_train.size() * (_crossVal - 1 - e) * coeff); ++i, tmp_1 = i)
+        _vector_train_cross.push_back(_vector_train[i]);
+      std::cout << tmp_1 << " size = " << tmp_1 << std::endl << std::endl;
+      std::cout << "Test_vector from " << (size_t) (_vector_train.size() * (_crossVal - 1 - e) * coeff) << " to ";
+      for (size_t i = (size_t) (_vector_train.size() * (_crossVal - 1 - e) * coeff);
+           i < (size_t) (_vector_train.size() * (_crossVal - e) * coeff); ++i, tmp = i)
+        _vector_test_cross.push_back(_vector_train[i]);
+      std::cout << tmp << " size = " << tmp - (size_t) (_vector_train.size() * (_crossVal - 1 - e) * coeff) << std::endl << std::endl;
+      std::cout << "Train_vector_part_2 from " << (size_t) (_vector_train.size() * (_crossVal - e) * coeff)
+                << " to ";
+      for (size_t i = (size_t) (_vector_train.size() * (_crossVal - e) * coeff); i < _vector_train.size(); ++i)
+        _vector_train_cross.push_back(_vector_train[i]);
+      std::cout << _vector_train.size() << " size = " << _vector_train.size() - (size_t) (_vector_train.size() * (_crossVal - e) * coeff) << std::endl << std::endl;
+      std::cout << "Full size train_vector = " << _vector_train.size() - (size_t) (_vector_train.size() * (_crossVal - e) * coeff) + tmp_1 << std::endl << std::endl;
+    }
+  }
+}
+
+void NeuralNetwork::setCrossVal(int c) {
+  _crossVal = c;
+  _epoch = _crossVal;
+}
+
 int NeuralNetwork::getEpoch() {return _epoch;}
 
 int NeuralNetwork::getLayer() {return _hidden;}
 
-int NeuralNetwork::getTypeNet() { return _typeNet; }
+bool NeuralNetwork::getTypeNet() { return _typeNet; }
 
 void NeuralNetwork::setTypeNet(bool n) { _typeNet = n;}
 

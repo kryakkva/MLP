@@ -26,10 +26,11 @@ enum mStatus {
     class NeuralNetwork : public QObject {
       Q_OBJECT
     private:
-      int _typeNet;
+      bool _typeNet;
       int _hidden;
       int _epoch;
       int _counter;
+      int _crossVal = 0;
       double _maxRa;
       std::vector<int> _layerSize;
       Function _func;
@@ -41,12 +42,16 @@ enum mStatus {
       std::vector<std::unordered_map<std::string, double>> _configuration;
       bool break_;
       double test_part_;
+      std::vector<std::vector<std::vector<double>>> _w_temp;
+      std::vector<std::vector<double>> _b_temp;
+      bool _reWrite = false;
+      void crossVal(int e);
+      void setCrossVal(int c);
       void initNet();
      private slots:
       void networkTrain(bool b);
       void networkTest(bool is_auto);
       void SetTestPart(int i);
-      void setTypeNet(bool n);
       // void setLayer(int n);
       void setEpoch(int n);
       void readData(std::string filename, mStatus v);
@@ -61,15 +66,17 @@ enum mStatus {
       void wrongFile();
       void isTrained(bool, int e = 0);
      public:
-      int _typeNetVal;
-      int _hiddenVal;
       std::vector<std::vector<double>> _vector_train;
       std::vector<std::vector<double>> _vector_test;
-
+      std::vector<std::vector<double>> _vector_train_cross;
+      std::vector<std::vector<double>> _vector_test_cross;
       NeuralNetwork(QObject *parent = nullptr);
+
       ~NeuralNetwork();
       void setBreak(bool b);
-      void reInitNet(int l);
+      void reInitNet(int l, bool b);
+      void reSaveStudy();
+      void reLoadStudy();
       void setInput(std::vector<double> values, int fl = 1);
       int forwardFeed();
       int searchMaxIndex(double *value);
@@ -85,14 +92,15 @@ enum mStatus {
       void addLayer(std::unordered_map<std::string, double> parameters);
       void clean();
       std::vector<double> output();
-      std::vector<std::vector<std::vector<double *>>> getWeights();
+      std::vector<std::vector<std::vector<double>>> getWeights();
       void alterWeights(
           const std::vector<std::vector<std::vector<double>>> &weights);
       void saveWeights(std::string filename);
+      void setTypeNet(bool n);
       void readWeights(std::string filename);
       void destroyNet();
       int getEpoch();
-      int getTypeNet();
+      bool getTypeNet();
       double getMaxRa();
       std::chrono::duration<double> getTime();
       int getLayer();

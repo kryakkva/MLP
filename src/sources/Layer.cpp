@@ -31,8 +31,9 @@ void Layer::trigger() {
 }
 
 void Layer::connectComplete(Layer* next) {
-  for (Neuron* n1 : _neurons)
+  for (Neuron* n1 : _neurons){
     for (Neuron* n2 : next->_neurons) n1->addNext(n2);
+  }
 }
 
 std::vector<double> Layer::output() {
@@ -53,8 +54,8 @@ void Layer::shiftBackWeights(double lr) {
     _neurons[i_neuron]->shiftBackWeights(lr);
 }
 
-std::vector<std::vector<double*>> Layer::getWeights() {
-  std::vector<std::vector<double*>> w;
+std::vector<std::vector<double>> Layer::getWeights() {
+  std::vector<std::vector<double>> w;
   for (size_t i_neuron = 0; i_neuron < _neurons.size(); ++i_neuron)
     w.push_back(_neurons[i_neuron]->getWeights());
   return w;

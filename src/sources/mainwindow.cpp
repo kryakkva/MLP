@@ -25,6 +25,7 @@ void MainWindow::SignalSlotsConnect() {
 
   connect(view_->loadTestButton, SIGNAL(clicked(bool)), this, SLOT(openTestFile(bool)));
   connect(view_->LoadTrainButton, SIGNAL(clicked(bool)), this, SLOT(openTrainFile(bool)));
+  connect(view_->graphRadioButton, SIGNAL(toggled(bool)), this, SLOT(setTypeNet(bool)));
   connect(view_->layersDial, SIGNAL(valueChanged(int)),view_->lcdNumber, SLOT(display(int)));
   connect(view_->testScrollBar, SIGNAL(valueChanged(int)),draw_area_->getConv(), SLOT(intToString(int)));
   connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
@@ -33,7 +34,6 @@ void MainWindow::SignalSlotsConnect() {
   connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
   connect(view_->spinBox, SIGNAL(valueChanged(int)), model_, SLOT(setEpoch(int)));
   connect(view_->chartButton, SIGNAL(clicked(bool)), messages_, SLOT(showChart(bool)));
-  connect(view_->graphRadioButton, SIGNAL(toggled(bool)), model_, SLOT(setTypeNet(bool)));
 
   connect(model_, SIGNAL(wrongFile()),
           this, SLOT(wrongFileError()));
@@ -136,7 +136,13 @@ void MainWindow::isTrained(bool trStat, int epoch) {
 }
 
 void MainWindow::on_layersDial_sliderReleased() {
-  model_->reInitNet(view_->lcdNumber->intValue());
+  model_->reInitNet(view_->lcdNumber->intValue(), model_->getTypeNet());
+}
+
+void  MainWindow::setTypeNet(bool b) {
+  // model_->setTypeNet(b);
+  qInfo() << b;
+  model_->reInitNet(model_->getLayer(), b);
 }
 
 void MainWindow::wrongFileError() {

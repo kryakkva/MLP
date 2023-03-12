@@ -30,6 +30,7 @@ class MainWindow : public QMainWindow {
   void openTrainFile(bool b);
   void openTestFile(bool b);
   void wrongFileError();
+  void setTypeNet(bool b);
   // void on_load_btn_clicked();
 
   // void on_spinBox_valueChanged(int arg1);
@@ -39,7 +40,6 @@ class MainWindow : public QMainWindow {
   void isTrained(bool, int);
 signals:
   void LetterIs(const QString &);
-
   void readFile(std::string, mStatus);
   // void setInputLetter(std::vector<double>);
 

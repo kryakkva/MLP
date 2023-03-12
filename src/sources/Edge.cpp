@@ -14,8 +14,6 @@ Neuron* Edge::neuronb() const { return _nb; }
 
 double Edge::weight() const { return _w; }
 
-double* Edge::weightP() { return &_w; }
-
 void Edge::propagate(double neuron_output) {
   neuron()->addAccumulated(neuron_output * weight());
 }
