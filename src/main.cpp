@@ -12,9 +12,10 @@ int main() {
 
   NeuralNetwork net;
 
-//    net.setEpoch(40);
+    net.setEpoch(40);
+    net._hiddenVal = 5;
 //    net._typeNetVal = 1;
-//    net.reInitNet();
+    net.reInitNet();
 
 
    if (net._vector_train.empty())

@@ -77,4 +77,10 @@ void Layer::getBackPropagationShifts(double expect) {
 
 layerType Layer::getType() const { return _type; }
 
+void Layer::clearAll() {
+  for (Neuron *n: _neurons)
+    n->clearAll();
+  _neurons.clear();
+}
+
 }  // namespace s21

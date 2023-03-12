@@ -91,4 +91,8 @@ void Neuron::getBackPropagationShifts(double expect) {
 
 std::vector<Edge*> Neuron::getNextEdge() { return _next; }
 
+void Neuron::clearAll() {
+  _next.clear();
+  _previous.clear();
+}
 }  // namespace s21

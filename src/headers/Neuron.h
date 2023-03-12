@@ -38,6 +38,7 @@ class Neuron {
   void shiftBackWeights(double lr);
   void getBackPropagationShifts(double expect);
   std::vector<Edge*> getNextEdge();
+  void clearAll();
 
  private:
   int _id_neuron = 0;

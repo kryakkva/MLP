@@ -38,6 +38,7 @@ class Layer {
   void randomizeAllBias(double d);
   void getBackPropagationShifts(double expect);
   layerType getType() const;
+  void clearAll();
 
  private:
   std::vector<Neuron*> _neurons;

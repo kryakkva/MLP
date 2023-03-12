@@ -159,8 +159,7 @@ double NeuralNetwork::networkTrain(std::vector<std::vector<double>> value) {
   }
   auto t2 = std::chrono::steady_clock::now();
   _time = t2 - t1;
-  printf("TypeNet = %d, Epoch = %d, layer = %d, counter = %d   ", _typeNet,
-         _epoch, _hidden, _counter);
+  printf("TypeNet = %d, layer = %d ", _typeNet, _hidden);
   _counter++;
   if (ra > _maxRa) _maxRa = ra;
   return (ra);
@@ -455,7 +454,9 @@ void NeuralNetwork::destroyNet() {
     delete[] _weights;
     _layerSize.clear();
   } else {
-    for (Layer *l : _layers) delete l;
+      for (Layer *l : _layers)
+          l->clearAll();
+      _layers.clear();
   }
 }
 
