@@ -12,7 +12,7 @@ int main() {
 
   NeuralNetwork net;
 
-    net.setEpoch(1);
+    net.setEpoch(3);
 //    net._hiddenVal = 5;
 //    net._typeNetVal = 1;
 //    net.reInitNet();

@@ -34,9 +34,9 @@ class NeuralNetwork {
   int searchMaxIndex(double *value);
   void backPropagation(double expect);
   void weightsUpdater(double lr);
-
   void trigger();
   int searchMaxIndexGraph(std::vector<double> values);
+  int predictLetter();
   void getBackPropagationShifts(double expect);
   void shiftBackWeights(double lr);
   void autogenerate();

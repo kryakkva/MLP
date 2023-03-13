@@ -124,12 +124,7 @@ double NeuralNetwork::networkTest(std::vector<std::vector<double>> value) {
 //         _epoch, _hidden, _counter);
   for (size_t i = 0; i < value.size(); i++) {
     setInput(value[i]);
-    if (!_typeNet)
-      predict = forwardFeed();
-    else {
-      trigger();
-      predict = searchMaxIndexGraph(output());
-    }
+    predict = predictLetter() - 64;
     right = value[i][0];
     if (right == predict) ra++;
   }
@@ -145,12 +140,7 @@ double NeuralNetwork::networkTrain(std::vector<std::vector<double>> value) {
   auto t1 = std::chrono::steady_clock::now();
   for (size_t i = 0; i < value.size(); i++) {
     setInput(value[i]);
-    if (!_typeNet)
-      predict = forwardFeed();
-    else {
-      trigger();
-      predict = searchMaxIndexGraph(output());
-    }
+    predict = predictLetter() - 64;
     right = value[i][0];
     if (right != predict) {
       if (!_typeNet) {
@@ -241,6 +231,15 @@ int NeuralNetwork::searchMaxIndexGraph(std::vector<double> value) {
   return prediction;
 }
 
+int NeuralNetwork::predictLetter() {
+  if (!_typeNet)
+    return (forwardFeed() + 64);
+  else {
+    trigger();
+    return (searchMaxIndexGraph(output()) + 64);
+  }
+}
+
 void NeuralNetwork::getBackPropagationShifts(double expect) {
   for (int i = _layers.size() - 1; i >= 1; --i)
     _layers[i]->getBackPropagationShifts(expect);
@@ -303,7 +302,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
     exit(0);
   }
   fout << "This is weights file" << std::endl;
-  fout << " " << _epoch << " " << _test_ra << std::endl;
+  fout << " " << _counter << " " << _test_ra << std::endl;
   if (!_typeNet) {
     for (int i = 0; i < _hidden + 2; ++i) fout << " " << _layerSize[i];
     fout << std::endl;
