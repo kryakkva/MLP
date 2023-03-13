@@ -147,12 +147,7 @@ void NeuralNetwork::networkTest(bool is_auto) {
   int j = 0;
   for (double i = 0; i < value.size() && !break_; i += 1/test_part_, j++) {
     setInput(value[(int)i]);
-    if (!_typeNet)
-      predict = forwardFeed();
-    else {
-      trigger();
-      predict = searchMaxIndexGraph(output());
-    }
+    predict = predictLetter() - 64;
     right = value[(int)i][0];
     if (right == predict)
       ra++;
@@ -195,13 +190,7 @@ void NeuralNetwork::networkTrain(bool b) {
     }
     for (int i = 0; i < value.size() && !break_; i++) {
       setInput(value[i]);
-      if (!_typeNet) {
-        predict = forwardFeed();
-      }
-      else {
-        trigger();
-        predict = searchMaxIndexGraph(output());
-      }
+      predict = predictLetter() - 64;
       right = value[i][0];
       if (right != predict) {
         if (!_typeNet) {
@@ -264,6 +253,15 @@ int NeuralNetwork::searchMaxIndex(double *value) {
     }
   }
   return prediction;
+}
+
+int NeuralNetwork::predictLetter() {
+  if (!_typeNet)
+    return (forwardFeed() + 64);
+  else {
+    trigger();
+    return (searchMaxIndexGraph(output()) + 64);
+  }
 }
 
 void NeuralNetwork::backPropagation(double expect) {

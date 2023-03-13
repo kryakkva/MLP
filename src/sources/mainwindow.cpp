@@ -89,7 +89,7 @@ void MainWindow::SetDrawArea() {
 
 void MainWindow::PredictLetter(std::vector<double> v) {
   model_->setInput(v, 0);
-  LetterIs(QString(QChar(model_->forwardFeed() + 64)));
+  LetterIs(QString(QChar(model_->predictLetter())));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

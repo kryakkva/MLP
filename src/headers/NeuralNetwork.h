@@ -86,6 +86,7 @@ enum mStatus {
       void backPropagation(double expect);
       void weightsUpdater(double lr);
       void trigger();
+      int predictLetter();
       int searchMaxIndexGraph(std::vector<double> values);
       void getBackPropagationShifts(double expect);
       void shiftBackWeights(double lr);

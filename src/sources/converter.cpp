@@ -87,7 +87,7 @@ bool Converter::isInvert(QImage &img) {
 
 std::vector<double> Converter::convertDrawImg() {
   std::vector<double> _v;
-  _v.push_back(-1.);
+  // _v.push_back(-1.);
   QImage drawImg =
       _image->copy(findCropArea())
           .scaled(28, 28, Qt::KeepAspectRatio, Qt::SmoothTransformation)
