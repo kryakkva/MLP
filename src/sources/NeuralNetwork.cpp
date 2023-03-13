@@ -133,7 +133,7 @@ double NeuralNetwork::networkTest(std::vector<std::vector<double>> value) {
     right = value[i][0];
     if (right == predict) ra++;
   }
-  _test_ra = ra;
+  _test_ra = (100 - ra * 100 / (_vector_test.size()*test_part_));
   return (ra);
 }
 
@@ -303,8 +303,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
     exit(0);
   }
   fout << "This is weights file" << std::endl;
-  fout << " " << _epoch << " " << (100 - _test_ra * 100 / (_vector_test.size()*test_part_)) << std::endl;
-  std::cout << (100 - _test_ra * 100 / (_vector_test.size()*test_part_)) << std::endl;
+  fout << " " << _epoch << " " << _test_ra << std::endl;
   if (!_typeNet) {
     for (int i = 0; i < _hidden + 2; ++i) fout << " " << _layerSize[i];
     fout << std::endl;
