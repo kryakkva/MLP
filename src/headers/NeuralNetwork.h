@@ -46,9 +46,9 @@ enum mStatus {
       std::vector<std::vector<double>> _b_temp;
       bool _reWrite = false;
       void crossVal(int e);
-      void setCrossVal(int c);
       void initNet();
      private slots:
+      void setCrossVal(int c);
       void networkTrain(bool b);
       void networkTest(bool is_auto);
       void SetTestPart(int i);
@@ -100,6 +100,7 @@ enum mStatus {
       void readWeights(std::string filename);
       void destroyNet();
       int getEpoch();
+      int getCrossVal();
       bool getTypeNet();
       double getMaxRa();
       std::chrono::duration<double> getTime();

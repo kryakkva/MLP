@@ -20,6 +20,7 @@ static void printVector(std::vector<double> &_v) {
 void MainWindow::SignalSlotsConnect() {
   connect(this, SIGNAL(LetterIs(const QString &)), view_->letterLabel, SLOT(setText(const QString &)));
   connect(this, SIGNAL(readFile(std::string, mStatus)), model_, SLOT(readData(std::string, mStatus)));
+  connect(this, SIGNAL(setCrossVal(int)), model_, SLOT(setCrossVal(int)));
 
   connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),view_->testPartLabel, SLOT(setText(const QString &)));
 
@@ -28,12 +29,14 @@ void MainWindow::SignalSlotsConnect() {
   connect(view_->graphRadioButton, SIGNAL(toggled(bool)), this, SLOT(setTypeNet(bool)));
   connect(view_->layersDial, SIGNAL(valueChanged(int)),view_->lcdNumber, SLOT(display(int)));
   connect(view_->testScrollBar, SIGNAL(valueChanged(int)),draw_area_->getConv(), SLOT(intToString(int)));
-  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
+  // connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
+  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)), this, SLOT(crossVal(bool)));
   connect(view_->trainButton, SIGNAL(clicked(bool)), model_, SLOT(networkTrain(bool)));
   connect(view_->testButton, SIGNAL(clicked(bool)), model_, SLOT(networkTest(bool)));
   connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
   connect(view_->spinBox, SIGNAL(valueChanged(int)), model_, SLOT(setEpoch(int)));
   connect(view_->chartButton, SIGNAL(clicked(bool)), messages_, SLOT(showChart(bool)));
+  connect(view_->kGroupsSpinBox, SIGNAL(valueChanged(int)), model_, SLOT(setCrossVal(int)));
 
   connect(model_, SIGNAL(wrongFile()),
           this, SLOT(wrongFileError()));
@@ -143,6 +146,20 @@ void  MainWindow::setTypeNet(bool b) {
   // model_->setTypeNet(b);
   qInfo() << b;
   model_->reInitNet(model_->getLayer(), b);
+}
+
+void MainWindow::crossVal(bool b) {
+  view_->kGroupsSpinBox->setEnabled(b);
+  if (!b){
+    emit setCrossVal(0);
+    if (model_->_vector_test.empty())
+      view_->trainButton->setEnabled(false);
+  }
+  else {
+    emit setCrossVal(view_->kGroupsSpinBox->value());
+    if (!model_->_vector_train.empty())
+      view_->trainButton->setEnabled(true);
+  }
 }
 
 void MainWindow::wrongFileError() {

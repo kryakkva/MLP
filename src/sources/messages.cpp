@@ -35,6 +35,7 @@ Messages::~Messages()
 
 void Messages::showDialogMsg(mStatus status, std::string str) {
   ready_ = false;
+  ui->progressBar->setValue(0);
   ui->break_pushButton->setText("Break");
   ui->label->setVisible(true);
   ui->progressBar->setVisible(true);
@@ -108,8 +109,13 @@ void Messages::breakBtnClicked(bool b) {
 
 void Messages::updateBarVal(int i, mStatus stat, int e) {
   ui->progressBar->setValue(i);
-  if (stat == train_)
-    ui->file_name_label->setText(QString::number(e) + " from " + QString::number(model_.getEpoch()) + " epoch");
+  if (stat == train_) {
+    if (!model_.getCrossVal())
+      ui->file_name_label->setText(QString::number(e) + " from " + QString::number(model_.getEpoch()) + " epoch");
+    else
+      ui->file_name_label->setText(QString::number(e) + " from " + QString::number(model_.getCrossVal()) + " groups");
+  }
+
 }
 
 void Messages::modelReady(mStatus status) {
