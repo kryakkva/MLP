@@ -78,8 +78,10 @@ class NeuralNetwork {
   std::vector<std::unordered_map<std::string, double>> _configuration;
   std::vector<std::vector<std::vector<double>>> _w_temp;
   std::vector<std::vector<double>> _b_temp;
+  int _temp_counter;
   bool _reWrite = false;
-
+  double test_part_ = 1;
+  double _test_ra = 0;
 
   void initNet();
 };

@@ -56,6 +56,7 @@ void NeuralNetwork::reInitNet() {
 }
 
 void NeuralNetwork::reSaveStudy() {
+    _temp_counter = _counter;
     _w_temp.clear();
     _b_temp.clear();
     if (!_typeNet) {
@@ -86,6 +87,7 @@ void NeuralNetwork::reSaveStudy() {
 }
 
 void NeuralNetwork::reLoadStudy() {
+    _counter = _temp_counter;
     if (!_typeNet) {
         for (size_t i = 0; i < _layerSize.size() - 1; ++i)
             for (int j = 0; j < _layerSize[i]; ++j)
@@ -131,6 +133,7 @@ double NeuralNetwork::networkTest(std::vector<std::vector<double>> value) {
     right = value[i][0];
     if (right == predict) ra++;
   }
+  _test_ra = ra;
   return (ra);
 }
 
@@ -300,6 +303,8 @@ void NeuralNetwork::saveWeights(std::string filename) {
     exit(0);
   }
   fout << "This is weights file" << std::endl;
+  fout << " " << _epoch << " " << (100 - _test_ra * 100 / (_vector_test.size()*test_part_)) << std::endl;
+  std::cout << (100 - _test_ra * 100 / (_vector_test.size()*test_part_)) << std::endl;
   if (!_typeNet) {
     for (int i = 0; i < _hidden + 2; ++i) fout << " " << _layerSize[i];
     fout << std::endl;
@@ -342,8 +347,17 @@ void NeuralNetwork::readWeights(std::string filename) {
     printf("You open wrong file!!!\n");
     exit(0);
   }
-  std::vector<int> line;
   double num;
+  while (fin.get() != '\n') {
+    fin >> num;
+    if (num - (int) num != 0) {
+      printf("Wrong in file 1\n");
+      exit(0);
+    }
+    _counter = num;
+    fin >> _test_ra;
+  }
+  std::vector<int> line;
   while (fin.get() != '\n') {
     fin >> num;
     if (num - (int)num != 0) {

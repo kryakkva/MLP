@@ -12,10 +12,10 @@ int main() {
 
   NeuralNetwork net;
 
-    net.setEpoch(40);
-    net._hiddenVal = 5;
+    net.setEpoch(1);
+//    net._hiddenVal = 5;
 //    net._typeNetVal = 1;
-    net.reInitNet();
+//    net.reInitNet();
 
 
    if (net._vector_train.empty())
@@ -25,9 +25,9 @@ int main() {
       net._vector_test =
               net.readData("/Users/apaege/MLP_my_and_other/MLP/datasets/emnist-letters/emnist-letters-test.csv");
 
-  net.setCrossVal(9);
+//  net.setCrossVal(9);
 
-
+/*
   auto begin = std::chrono::steady_clock::now();
   for (int i = 0; i < net.getEpoch(); ++i) {
     net.crossVal(i);
@@ -51,23 +51,24 @@ int main() {
   time = end - begin;
   std::cout << std::endl
             << "TIME: " << time.count() / 60. << "min" << std::endl;
-
+*/
 
 //  net.saveWeights("../src_data/new_weights/2layers.mlp");
 //  net._typeNetVal = 0;
 //  net.reInitNet();
-//  net.readWeights("../src_data/new_weights/2layers.mlp");
+  net.readWeights("../src_data/new_weights/2layers.mlp");
 
-/*
-  //    net._typeNetVal = 0;
-  //    net.reInitNet();
-    if (net._vector_test.empty())
-        net._vector_test =
-                net.readData("/Users/apaege/MLP_my_and_other/MLP/datasets/emnist-letters/emnist-letters-test.csv");
+
+    net._typeNetVal = 1;
+    net.reInitNet();
+//    if (net._vector_test.empty())
+//        net._vector_test =
+//                net.readData("/Users/apaege/MLP_my_and_other/MLP/datasets/emnist-letters/emnist-letters-test.csv");
 //    size_t ex_tests = net._vector_test.size();
 
+  size_t ex_tests = net._vector_test.size();
   auto begin2 = std::chrono::steady_clock::now();
-  ra = net.networkTest(net._vector_test_cross);
+  ra = net.networkTest(net._vector_test);
   auto end2 = std::chrono::steady_clock::now();
   time = end2 - begin2;
   std::cout << "_TypeNet = " << net.getTypeNet()
@@ -76,7 +77,7 @@ int main() {
   std::cout << std::endl
             << "TIME: " << time.count() / 60. << "min" << std::endl
             << std::endl;
-*/
+
 
 
 
