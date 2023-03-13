@@ -71,6 +71,7 @@ void NeuralNetwork::reInitNet(int hiddenVal, bool typeNetVal) {
 }
 
 void NeuralNetwork::reSaveStudy() {
+  _temp_counter = _counter;
   _w_temp.clear();
   _b_temp.clear();
   if (!_typeNet) {
@@ -101,6 +102,7 @@ void NeuralNetwork::reSaveStudy() {
 }
 
 void NeuralNetwork::reLoadStudy() {
+  _counter = _temp_counter;
   if (!_typeNet) {
     for (size_t i = 0; i < _layerSize.size() - 1; ++i)
       for (int j = 0; j < _layerSize[i]; ++j)
@@ -158,12 +160,14 @@ void NeuralNetwork::networkTest(bool is_auto) {
       emit updateBar(j / (int)((value.size()*test_part_)/100), test_);
     }
   }
+  if (!break_)
+    _test_ra = ra * 100 / (value.size() * test_part_);
   // qInfo() << j;
   if (is_auto && !break_)
-    emit updateChart(100 - (ra * 100 / value.size()));
+    emit updateChart(100 - _test_ra);
   else
     emit iAmReady(test_);
-  std::cout << "error " << 100 - ra * 100 / (value.size()*test_part_)<< std::endl;
+  std::cout << "error " << 100 - _test_ra << std::endl;
 }
 
 void NeuralNetwork::networkTrain(bool b) {
@@ -232,7 +236,7 @@ void NeuralNetwork::networkTrain(bool b) {
   std::cout << "all time: " << getTime().count() << std::endl;
   emit iAmReady(train_);
   if (_counter){
-    emit isTrained(true, _counter);
+    emit isTrained(true);
     emit actChartBtn(true);
   }
 }
@@ -370,6 +374,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
     exit(0);
   }
   fout << "This is weights file" << std::endl;
+  fout << " " << _counter << " " << _test_ra << std::endl;
   if (!_typeNet) {
     for (int i = 0; i < _hidden + 2; ++i) fout << " " << _layerSize[i];
     fout << std::endl;
@@ -552,22 +557,35 @@ void NeuralNetwork::readWeights(std::string filename) {
   std::getline(fin, test);
   if (test.compare("This is weights file") != 0) {
     printf("You open wrong file!!!\n");
-    exit(0);
+    emit wrongFile();
+    return;
+  }
+  double num;
+  while (fin.get() != '\n') {
+    fin >> num;
+    if (num - (int) num != 0) {
+      printf("Wrong in file 1\n");
+      emit wrongFile();
+      return;
+    }
+    _counter = num;
+    fin >> _test_ra;
   }
   std::vector<int> line;
-  double num;
   while (fin.get() != '\n') {
     fin >> num;
     if (num - (int)num != 0) {
       printf("Wrong in file 2\n");
-      exit(0);
+      emit wrongFile();
+      return;
     }
     line.push_back(static_cast<int>(num));
   }
 
   if (_hidden + 2 != (int)line.size()) {
     printf("Wrong in file 3\n");
-    exit(0);
+    emit wrongFile();
+    return;
   }
   int multi = 0;
   int count = 0;
@@ -618,10 +636,12 @@ void NeuralNetwork::readWeights(std::string filename) {
   if (!fin.eof()) count++;
   if (count != multi) {
     printf("Amount of number is wrong!!!\n");
-    exit(0);
+    emit wrongFile();
+    return;
   }
   std::cout << filename << " readed \n";
   fin.close();
+  emit isTrained(true);
 }
 
 void NeuralNetwork::destroyNet() {
@@ -711,5 +731,8 @@ double NeuralNetwork::getMaxRa() {return _maxRa;}
 void NeuralNetwork::SetTestPart(int i) { test_part_ = i/100.;}
 
 std::chrono::duration<double> NeuralNetwork::getTime() {return _time;}
+
+int NeuralNetwork::GetCounter() const { return _counter; }
+double NeuralNetwork::GetTestRa() const { return _test_ra; }
 
 } // s21

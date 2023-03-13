@@ -40,8 +40,8 @@ void MainWindow::SignalSlotsConnect() {
 
   connect(model_, SIGNAL(wrongFile()),
           this, SLOT(wrongFileError()));
-  connect(model_, SIGNAL(isTrained(bool, int)),
-          this, SLOT(isTrained(bool, int)));
+  connect(model_, SIGNAL(isTrained(bool)),
+          this, SLOT(isTrained(bool)));
   connect(model_, SIGNAL(actTestBtn(bool)),
           view_->testButton, SLOT(setEnabled(bool)));
   connect(model_, SIGNAL(actChartBtn(bool)),
@@ -126,7 +126,7 @@ void MainWindow::on_LoadWeightsButton_clicked() {
     model_->readWeights(file_name.toStdString());
 }
 
-void MainWindow::isTrained(bool trStat, int epoch) {
+void MainWindow::isTrained(bool trStat) {
   if (!trStat){
     view_->train_status_lablel->setText("Attention! The perceptron is not trained. "
                                         "First load the weights for " + QString::number(model_->getLayer())
@@ -134,7 +134,8 @@ void MainWindow::isTrained(bool trStat, int epoch) {
   }
   else {
     view_->train_status_lablel->setText("The perceptron is trained on " +
-                                        QString::number((epoch)) + " epochs, approximately ... %");
+                                        QString::number(model_->GetCounter()) + " epochs, approximately " +
+                                        QString::number(model_->GetTestRa()) + " %");
   }
 }
 

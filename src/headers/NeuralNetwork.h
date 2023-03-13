@@ -30,7 +30,10 @@ enum mStatus {
       int _hidden;
       int _epoch;
       int _counter;
+     private:
+      int _temp_counter;
       int _crossVal = 0;
+      double _test_ra = 0;
       double _maxRa;
       std::vector<int> _layerSize;
       Function _func;
@@ -64,7 +67,7 @@ enum mStatus {
       void iAmReady(mStatus status);
       void updateChart(double);
       void wrongFile();
-      void isTrained(bool, int e = 0);
+      void isTrained(bool);
      public:
       std::vector<std::vector<double>> _vector_train;
       std::vector<std::vector<double>> _vector_test;
@@ -105,6 +108,8 @@ enum mStatus {
       double getMaxRa();
       std::chrono::duration<double> getTime();
       int getLayer();
+      int GetCounter() const;
+      double GetTestRa() const;
     };
 } // s21
 

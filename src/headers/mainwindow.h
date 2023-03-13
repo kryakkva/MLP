@@ -38,7 +38,7 @@ class MainWindow : public QMainWindow {
   void on_layersDial_sliderReleased();
   void on_saveWeightsButton_clicked();
   void on_LoadWeightsButton_clicked();
-  void isTrained(bool, int);
+  void isTrained(bool);
 signals:
   void LetterIs(const QString &);
   void readFile(std::string, mStatus);
