@@ -140,7 +140,8 @@ void MainWindow::isTrained(bool trStat) {
 }
 
 void MainWindow::on_layersDial_sliderReleased() {
-  model_->reInitNet(view_->lcdNumber->intValue(), model_->getTypeNet());
+  if (view_->layersDial->value() != model_->getLayer())
+    model_->reInitNet(view_->layersDial->value(), model_->getTypeNet());
 }
 
 void  MainWindow::setTypeNet(bool b) {

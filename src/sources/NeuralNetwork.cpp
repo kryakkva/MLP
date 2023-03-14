@@ -52,13 +52,13 @@ void NeuralNetwork::initNet() {
     // write(1, "graph_cr_fn\n", 12);
 
   }
-  emit isTrained(false);
+  if (!_reWrite)
+    emit isTrained(false);
   // write(1, "INIT_DONE\n", 10);
   // std::cout << "init net done\n" ;
 }
 
 void NeuralNetwork::reInitNet(int hiddenVal, bool typeNetVal) {
-  // write(1, "ReinitStart\n", 12);
   if (typeNetVal != _typeNet && hiddenVal == _hidden)
     reSaveStudy();
   destroyNet();
