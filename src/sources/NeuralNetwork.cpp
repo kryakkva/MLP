@@ -122,13 +122,22 @@ double NeuralNetwork::networkTest(std::vector<std::vector<double>> value) {
   double predict;
 //  printf("TypeNet = %d, Epoch = %d, layer = %d, counter = %d   ", _typeNet,
 //         _epoch, _hidden, _counter);
+  auto t1 = std::chrono::steady_clock::now();
+
   for (size_t i = 0; i < value.size(); i++) {
     setInput(value[i]);
     predict = predictLetter() - 64;
     right = value[i][0];
     if (right == predict) ra++;
   }
-  _test_ra = (100 - ra * 100 / (_vector_test.size()*test_part_));
+  auto t2 = std::chrono::steady_clock::now();
+  _time = t2 - t1;
+  test_result_.push_back(100 * ra / _vector_test.size());
+  test_result_.push_back(1 - test_result_[0]/(100 - _error_train));
+  test_result_.push_back(test_part_);
+  test_result_.push_back(2 * (test_result_[1] * test_result_[2])/(test_result_[1] + test_result_[2]));
+  test_result_.push_back(getTime().count() / 60);
+
   return (ra);
 }
 
@@ -153,6 +162,7 @@ double NeuralNetwork::networkTrain(std::vector<std::vector<double>> value) {
     } else
       ra++;
   }
+  _error_train = 100 - ra * 100 / _vector_train.size();
   auto t2 = std::chrono::steady_clock::now();
   _time = t2 - t1;
   printf("TypeNet = %d, layer = %d ", _typeNet, _hidden);
@@ -302,7 +312,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
     exit(0);
   }
   fout << "This is weights file" << std::endl;
-  fout << " " << _counter << " " << _test_ra << std::endl;
+  fout << " " << _counter << " " << _error_train << std::endl;
   if (!_typeNet) {
     for (int i = 0; i < _hidden + 2; ++i) fout << " " << _layerSize[i];
     fout << std::endl;
@@ -353,7 +363,7 @@ void NeuralNetwork::readWeights(std::string filename) {
       exit(0);
     }
     _counter = num;
-    fin >> _test_ra;
+    fin >> _error_train;
   }
   std::vector<int> line;
   while (fin.get() != '\n') {
@@ -536,5 +546,7 @@ void NeuralNetwork::setCrossVal(int c) {
 }
 
 std::chrono::duration<double> NeuralNetwork::getTime() { return _time; }
+
+std::vector<double> NeuralNetwork::getResult() { return test_result_; }
 
 }  // namespace s21

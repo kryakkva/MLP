@@ -60,6 +60,7 @@ class NeuralNetwork {
   void crossVal(int e);
   void setCrossVal(int c);
   std::chrono::duration<double> getTime();
+  std::vector<double> getResult();
 
  private:
   int _typeNet;
@@ -81,7 +82,8 @@ class NeuralNetwork {
   int _temp_counter;
   bool _reWrite = false;
   double test_part_ = 1;
-  double _test_ra = 0;
+  double _error_train = 0;
+  std::vector<double> test_result_;
 
   void initNet();
 };
