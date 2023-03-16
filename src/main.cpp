@@ -78,7 +78,6 @@ int main() {
             << "TIME: " << time.count() / 60. << "min" << std::endl
             << std::endl;
 
-  std::cout << (100 - net.getter()) << std::endl;
   std::cout << net.getResult()[0] << " " << net.getResult()[1] << " " << net.getResult()[2] << " " << net.getResult()[3] << " " << net.getResult()[4] << " " << std::endl;
 
 

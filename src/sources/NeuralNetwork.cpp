@@ -132,6 +132,7 @@ double NeuralNetwork::networkTest(std::vector<std::vector<double>> value) {
   }
   auto t2 = std::chrono::steady_clock::now();
   _time = t2 - t1;
+  test_result_.clear();
   test_result_.push_back(100 * ra / _vector_test.size());
   test_result_.push_back(1 - test_result_[0]/(100 - _error_train));
   test_result_.push_back(test_part_);
