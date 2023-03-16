@@ -33,7 +33,11 @@ enum mStatus {
      private:
       int _temp_counter;
       int _crossVal = 0;
-      double _test_ra = 0;
+      double _error_train = 0;
+     public:
+      double GetErrorTrain() const;
+     private:
+      std::vector<double> test_result_;
       double _maxRa;
       std::vector<int> _layerSize;
       Function _func;
@@ -68,6 +72,7 @@ enum mStatus {
       void updateChart(double);
       void wrongFile();
       void isTrained(bool);
+      void ShowResult();
      public:
       std::vector<std::vector<double>> _vector_train;
       std::vector<std::vector<double>> _vector_test;
@@ -110,7 +115,8 @@ enum mStatus {
       std::chrono::duration<double> getTime();
       int getLayer();
       int GetCounter() const;
-      double GetTestRa() const;
+      // double GetTestRa() const;
+      std::vector<double> getResult();
     };
 } // s21
 

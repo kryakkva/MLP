@@ -32,6 +32,7 @@ class MainWindow : public QMainWindow {
   void wrongFileError();
   void setTypeNet(bool b);
   void crossVal(bool b);
+  void UpdateTestResult();
   // void on_load_btn_clicked();
 
   // void on_spinBox_valueChanged(int arg1);

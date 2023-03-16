@@ -70,7 +70,7 @@ void DrawArea::LoadImage() {
   QString fileName = QFileDialog::getOpenFileName(this,
                                                   tr("OpenFile"),
                                                   QDir::homePath(),
-                                                  tr("Images (*.png *.jpg)"));
+                                                  tr("Images (*.bmp)"));
   if (!fileName.isEmpty()) {
     QImage loadedImage;
     loadedImage.load(fileName);

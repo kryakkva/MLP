@@ -42,6 +42,8 @@ void MainWindow::SignalSlotsConnect() {
           this, SLOT(wrongFileError()));
   connect(model_, SIGNAL(isTrained(bool)),
           this, SLOT(isTrained(bool)));
+  connect(model_, SIGNAL(ShowResult()),
+          this, SLOT(UpdateTestResult()));
   connect(model_, SIGNAL(actTestBtn(bool)),
           view_->testButton, SLOT(setEnabled(bool)));
   connect(model_, SIGNAL(actChartBtn(bool)),
@@ -135,7 +137,7 @@ void MainWindow::isTrained(bool trStat) {
   else {
     view_->train_status_lablel->setText("The perceptron is trained on " +
                                         QString::number(model_->GetCounter()) + " epochs, approximately " +
-                                        QString::number(model_->GetTestRa()) + " %");
+                                        QString::number(100 - model_->GetErrorTrain()) + " %");
   }
 }
 
@@ -166,6 +168,14 @@ void MainWindow::crossVal(bool b) {
 
 void MainWindow::wrongFileError() {
   QMessageBox::information(this, "you open wrong file", "please open right file");
+}
+
+void MainWindow::UpdateTestResult() {
+  view_->accuracy->setText(QString::number(model_->getResult()[0]));
+  view_->precision->setText(QString::number(model_->getResult()[1]));
+  view_->recall->setText(QString::number(model_->getResult()[2]));
+  view_->f_measure->setText(QString::number(model_->getResult()[3]));
+  view_->elapsed_time->setText(QString::number(model_->getResult()[4]));
 }
 
 /*

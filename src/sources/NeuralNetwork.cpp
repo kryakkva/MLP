@@ -135,34 +135,56 @@ void NeuralNetwork::networkTest(bool is_auto) {
   double ra = 0;
   double right;
   int predict;
+  double recall;
+  // test_result_.push_back(100);
   if (!is_auto){
     break_ = false;
-    emit dialogMsg(test_);
+    if (test_part_)
+      emit dialogMsg(test_);
+    recall = test_part_;
   }
+  else
+    recall = 1;
   std::vector<std::vector<double>> value;
   if (is_auto && _crossVal)
     value = _vector_test_cross;
   else
     value = _vector_test;
   int j = 0;
-  for (double i = 0; i < value.size() && !break_; i += 1/test_part_, j++) {
+  auto t1 = std::chrono::steady_clock::now();
+  for (double i = 0; i < value.size() && !break_ && recall; i += 1/recall, j++) {
     setInput(value[(int)i]);
     predict = predictLetter() - 64;
     right = value[(int)i][0];
     if (right == predict)
       ra++;
-    if (!is_auto && !(j % (int)((value.size()*test_part_)/100)) && !break_){
-      emit updateBar(j / (int)((value.size()*test_part_)/100), test_);
+    if (!is_auto && !(j % (int)((value.size()*recall)/100)) && !break_){
+      emit updateBar(j / (int)((value.size()*recall)/100), test_);
     }
   }
-  if (!break_)
-    _test_ra = ra * 100 / (value.size() * test_part_);
-  // qInfo() << j;
+  auto t2 = std::chrono::steady_clock::now();
+  _time = t2 - t1;
+  if (!break_ && recall) {
+    test_result_.clear();
+    test_result_.push_back(100 * ra / (value.size() * recall));
+    test_result_.push_back(1 - test_result_[0]/(100 - _error_train));
+    test_result_.push_back(recall);
+    test_result_.push_back(2 * (test_result_[1] * test_result_[2])/(test_result_[1] + test_result_[2]));
+    test_result_.push_back(getTime().count());
+    std::cout << "error " << 100 - test_result_[0] << std::endl;
+    if (!is_auto)
+      emit {
+      ShowResult();
+    }
+  }
   if (is_auto && !break_)
-    emit updateChart(100 - _test_ra);
+    emit {
+    updateChart(100 - test_result_[0]);
+  }
   else
-    emit iAmReady(test_);
-  std::cout << "error " << 100 - _test_ra << std::endl;
+    emit {
+    iAmReady(test_);
+  }
 }
 
 void NeuralNetwork::networkTrain(bool b) {
@@ -171,6 +193,7 @@ void NeuralNetwork::networkTrain(bool b) {
   double predict;
   int ep;
   break_ = false;
+  _error_train = 100;
   std::vector<std::vector<double>> value;
   if (!_crossVal) {
     value = _vector_train;
@@ -206,10 +229,11 @@ void NeuralNetwork::networkTrain(bool b) {
         emit updateBar(i / (value.size()/100), train_, j + 1);
       }
     }
+    _error_train = 100 - ra * 100 / value.size();
     auto t2 = std::chrono::steady_clock::now();
     _time = t2 - t1;
     _counter++;
-    std::cout << _counter << " Epoch | "  << 100 - (ra * 100 / 88800) << " % Error | " << getTime().count() << " sec | Test ";
+    std::cout << _counter << " Epoch | "  << _error_train << " % Error | " << getTime().count() << " sec | Test ";
     // std::thread _th([&](){NetworkTest();});
     // _th.detach();
     networkTest(true);
@@ -372,7 +396,7 @@ void NeuralNetwork::saveWeights(std::string filename) {
     exit(0);
   }
   fout << "This is weights file" << std::endl;
-  fout << " " << _counter << " " << _test_ra << std::endl;
+  fout << " " << _counter << " " << _error_train << std::endl;
   if (!_typeNet) {
     for (int i = 0; i < _hidden + 2; ++i) fout << " " << _layerSize[i];
     fout << std::endl;
@@ -567,7 +591,7 @@ void NeuralNetwork::readWeights(std::string filename) {
       return;
     }
     _counter = num;
-    fin >> _test_ra;
+    fin >> _error_train;
   }
   std::vector<int> line;
   while (fin.get() != '\n') {
@@ -731,6 +755,8 @@ void NeuralNetwork::SetTestPart(int i) { test_part_ = i/100.;}
 std::chrono::duration<double> NeuralNetwork::getTime() {return _time;}
 
 int NeuralNetwork::GetCounter() const { return _counter; }
-double NeuralNetwork::GetTestRa() const { return _test_ra; }
+
+std::vector<double> NeuralNetwork::getResult() { return test_result_; }
+double NeuralNetwork::GetErrorTrain() const { return _error_train; }
 
 } // s21

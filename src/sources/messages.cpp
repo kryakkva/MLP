@@ -45,6 +45,7 @@ void Messages::showDialogMsg(mStatus status, std::string str) {
     case test_:
       this->setWindowTitle("Testing");
       ui->label->setText("Testing...");
+      ui->break_pushButton->setVisible(true);
       ui->file_name_label->setVisible(false);
       ui->chart_pushButton->setVisible(false);
       ui->chartArea->setVisible(false);
@@ -111,9 +112,13 @@ void Messages::updateBarVal(int i, mStatus stat, int e) {
   ui->progressBar->setValue(i);
   if (stat == train_) {
     if (!model_.getCrossVal())
-      ui->file_name_label->setText(QString::number(e) + " from " + QString::number(model_.getEpoch()) + " epoch");
+      ui->file_name_label->setText(QString::number(e) + " from "
+      + QString::number(model_.getEpoch()) + " epoch" + " | error control value = "
+      + QString::number(model_.GetErrorTrain()) + "%");
     else
-      ui->file_name_label->setText(QString::number(e) + " from " + QString::number(model_.getCrossVal()) + " groups");
+      ui->file_name_label->setText(QString::number(e) + " from "
+      + QString::number(model_.getCrossVal()) + " groups" + " | error control value = "
+      + QString::number(model_.GetErrorTrain()) + "%");
   }
 
 }

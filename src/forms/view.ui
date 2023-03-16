@@ -626,7 +626,7 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_13">
+    <widget class="QLabel" name="elapsed_time">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -639,7 +639,7 @@
       <string>0</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_14">
+    <widget class="QLabel" name="accuracy">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -652,7 +652,7 @@
       <string>0</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_15">
+    <widget class="QLabel" name="f_measure">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -665,7 +665,7 @@
       <string>0</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_16">
+    <widget class="QLabel" name="recall">
      <property name="geometry">
       <rect>
        <x>130</x>
@@ -678,7 +678,7 @@
       <string>0</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_17">
+    <widget class="QLabel" name="precision">
      <property name="geometry">
       <rect>
        <x>130</x>
