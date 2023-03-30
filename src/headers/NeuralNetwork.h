@@ -49,6 +49,7 @@ class NeuralNetwork {
   void alterWeights(
       const std::vector<std::vector<std::vector<double>>> &weights);
   void saveWeights(std::string filename);
+//  void saveVector(std::vector<double> v, std::string filename);
   void readWeights(std::string filename);
   std::vector<std::vector<double>> readData(std::string filename);
   void destroyNet();

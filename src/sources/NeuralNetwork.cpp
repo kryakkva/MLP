@@ -309,8 +309,9 @@ void NeuralNetwork::saveWeights(std::string filename) {
   std::ofstream fout;
   fout.open(filename);
   if (!fout.is_open()) {
-    std::cout << "Error reading file " << filename << std::endl;
-    exit(0);
+    throw std::invalid_argument(std::string ("Error reading file"));
+//    std::cout << "Error reading file " << filename << std::endl;
+//    exit(0);
   }
   fout << "This is weights file" << std::endl;
   fout << " " << _counter << " " << _error_train << std::endl;
@@ -343,25 +344,41 @@ void NeuralNetwork::saveWeights(std::string filename) {
   fout.close();
 }
 
+//    void NeuralNetwork::saveVector(std::vector<double> v, std::string filename) {
+//        std::ofstream fout;
+//        fout.open(filename);
+//        if (!fout.is_open()) {
+//            throw std::invalid_argument(std::string ("Error reading file"));
+//        }
+//        for (size_t i = 0; i < v.size() - 1; ++i) {
+//            fout << v[i] << ",";
+//        }
+//        fout << v[v.size() - 1];
+//        fout.close();
+//    }
+//
 void NeuralNetwork::readWeights(std::string filename) {
   std::ifstream fin;
   fin.open(filename);
   if (!fin.is_open()) {
-    std::cout << "Error reading file " << filename << std::endl;
-    exit(0);
+    throw std::invalid_argument(std::string ("Error reading file"));
+//    std::cout << "Error reading file " << filename << std::endl;
+//    exit(0);
   }
   std::string test;
   std::getline(fin, test);
   if (test.compare("This is weights file") != 0) {
-    printf("You open wrong file!!!\n");
-    exit(0);
+    throw std::invalid_argument(std::string ("You open wrong file!!!"));
+//    printf("You open wrong file!!!\n");
+//    exit(0);
   }
   double num;
   while (fin.get() != '\n') {
     fin >> num;
     if (num - (int) num != 0) {
-      printf("Wrong in file 1\n");
-      exit(0);
+      throw std::invalid_argument(std::string ("Counter can't be double"));
+//      printf("Wrong in file 1\n");
+//      exit(0);
     }
     _counter = num;
     fin >> _error_train;
@@ -370,15 +387,17 @@ void NeuralNetwork::readWeights(std::string filename) {
   while (fin.get() != '\n') {
     fin >> num;
     if (num - (int)num != 0) {
-      printf("Wrong in file 2\n");
-      exit(0);
+      throw std::invalid_argument(std::string ("Neurons amount can't be double"));
+//      printf("Wrong in file 2\n");
+//      exit(0);
     }
     line.push_back(static_cast<int>(num));
   }
 
   if (_hidden + 2 != (int)line.size()) {
-    printf("Wrong in file 3\n");
-    exit(0);
+    throw std::invalid_argument(std::string ("Wrong amount layers for this graph"));
+//    printf("Wrong in file 3\n");
+//    exit(0);
   }
   int multi = 0;
   int count = 0;
@@ -428,8 +447,9 @@ void NeuralNetwork::readWeights(std::string filename) {
   fin >> temp;
   if (!fin.eof()) count++;
   if (count != multi) {
-    printf("Amount of number is wrong!!!\n");
-    exit(0);
+    throw std::invalid_argument(std::string ("Amount of number is wrong!!!"));
+//    printf("Amount of number is wrong!!!\n");
+//    exit(0);
   }
 
   std::cout << filename << " readed \n";
@@ -441,9 +461,10 @@ std::vector<std::vector<double>> NeuralNetwork::readData(std::string filename) {
   std::vector<std::vector<double>> _vect;
   std::ifstream fin(filename);
   if (!fin.is_open())
-    std::cout << "Error reading file" << filename << std::endl;
-  else
-    std::cout << filename << " loading...\n";
+      throw std::invalid_argument(std::string ("Error reading file"));
+//  else
+//      std::cout << filename << " loading...\n";
+//    std::cout << "Error reading file" << filename << std::endl;
   std::string tmp;
   bool first;
   while (!fin.eof()) {
@@ -462,7 +483,7 @@ std::vector<std::vector<double>> NeuralNetwork::readData(std::string filename) {
     if (tmp != "") _vect.push_back(_number);
   }
   fin.close();
-  std::cout << "MNIST loaded... \n";
+//  std::cout << "MNIST loaded... \n";
   return _vect;
 }
 
