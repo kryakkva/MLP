@@ -1,9 +1,10 @@
 #include "messages.h"
+
 #include "ui_messages.h"
 namespace s21 {
 
-Messages::Messages(NeuralNetwork &model, QWidget *parent) :
-    QDialog(parent), model_(model), ui(new Ui::Messages), isChart_(false) {
+Messages::Messages(NeuralNetwork &model, QWidget *parent)
+    : QDialog(parent), model_(model), ui(new Ui::Messages), isChart_(false) {
   ui->setupUi(this);
   chart_ = new QChart();
   set_ = new QBarSet("Epoch Error Percentage");
@@ -19,18 +20,19 @@ Messages::Messages(NeuralNetwork &model, QWidget *parent) :
   chart_->addSeries(series_);
   ui->chartArea->setChart(chart_);
   chart_->createDefaultAxes();
-  connect(ui->break_pushButton, SIGNAL(clicked(bool)), this, SLOT(breakBtnClicked(bool)));
-  connect(ui->chart_pushButton, SIGNAL(clicked(bool)), this, SLOT(chartBtnClicked(bool)));
+  connect(ui->break_pushButton, SIGNAL(clicked(bool)), this,
+          SLOT(breakBtnClicked(bool)));
+  connect(ui->chart_pushButton, SIGNAL(clicked(bool)), this,
+          SLOT(chartBtnClicked(bool)));
 }
 
-Messages::~Messages()
-{
-//    delete axisY_;
-//    delete set_;
-//    delete series_;
-//    delete chart_;
-//ui->chartArea->deleteLater();
-    delete ui;
+Messages::~Messages() {
+  //    delete axisY_;
+  //    delete set_;
+  //    delete series_;
+  //    delete chart_;
+  // ui->chartArea->deleteLater();
+  delete ui;
 }
 
 void Messages::showDialogMsg(mStatus status, std::string str) {
@@ -40,7 +42,7 @@ void Messages::showDialogMsg(mStatus status, std::string str) {
   ui->label->setVisible(true);
   ui->progressBar->setVisible(true);
   ui->saveChartPushButton->setVisible(false);
-  this->setFixedSize(600,200);
+  this->setFixedSize(600, 200);
   switch (status) {
     case test_:
       this->setWindowTitle("Testing");
@@ -70,27 +72,26 @@ void Messages::showDialogMsg(mStatus status, std::string str) {
       ui->chart_pushButton->setVisible(false);
       ui->file_name_label->setText(QString::fromStdString(str));
       break;
-    default:break;
+    default:
+      break;
   }
   this->exec();
 }
 
-void Messages::clearChart(){
+void Messages::clearChart() {
   set_->selectAllBars();
   if (!set_->selectedBars().empty())
-      set_->remove(0, set_->selectedBars().size());
-  if (!chart_->series().empty())
-      chart_->removeSeries(series_);
+    set_->remove(0, set_->selectedBars().size());
+  if (!chart_->series().empty()) chart_->removeSeries(series_);
 }
 
 void Messages::chartBtnClicked(bool b) {
-  if (ui->chart_pushButton->text() == "Show chart"){
+  if (ui->chart_pushButton->text() == "Show chart") {
     ui->chart_pushButton->setText("Hide chart");
-    this->setFixedSize(600,600);
-  }
-  else if (ui->chart_pushButton->text() == "Hide chart"){
+    this->setFixedSize(600, 600);
+  } else if (ui->chart_pushButton->text() == "Hide chart") {
     ui->chart_pushButton->setText("Show chart");
-    this->setFixedSize(600,200);
+    this->setFixedSize(600, 200);
   }
 }
 
@@ -104,23 +105,23 @@ void Messages::updateChart(double d) {
   chart_->createDefaultAxes();
 }
 
-void Messages::breakBtnClicked(bool b) {
-  this->close();
-}
+void Messages::breakBtnClicked(bool b) { this->close(); }
 
 void Messages::updateBarVal(int i, mStatus stat, int e) {
   ui->progressBar->setValue(i);
   if (stat == train_) {
     if (!model_.getCrossVal())
-      ui->file_name_label->setText(QString::number(e) + " from "
-      + QString::number(model_.getEpoch()) + " epoch" + " | error control value = "
-      + QString::number(model_.GetErrorTrain()) + "%");
+      ui->file_name_label->setText(
+          QString::number(e) + " from " + QString::number(model_.getEpoch()) +
+          " epoch" + " | error control value = " +
+          QString::number(model_.getErrorTrain()) + "%");
     else
-      ui->file_name_label->setText(QString::number(e) + " from "
-      + QString::number(model_.getCrossVal()) + " groups" + " | error control value = "
-      + QString::number(model_.GetErrorTrain()) + "%");
+      ui->file_name_label->setText(QString::number(e) + " from " +
+                                   QString::number(model_.getCrossVal()) +
+                                   " groups" + " | error control value = " +
+                                   QString::number(model_.getErrorTrain()) +
+                                   "%");
   }
-
 }
 
 void Messages::modelReady(mStatus status) {
@@ -136,50 +137,45 @@ void Messages::modelReady(mStatus status) {
     case read_:
       ui->label->setText("Reading completed");
       break;
-    default:break;
+    default:
+      break;
   }
   ui->break_pushButton->setText("OK");
 }
 
 void Messages::reject() {
-  if (isChart_ || ready_){
+  if (isChart_ || ready_) {
     isChart_ = false;
     QDialog::reject();
-  }
-  else {
-    int ret = QMessageBox::question(this,
-                                    "APP_NAME",
-                                    tr("Are you sure?\n"),
+  } else {
+    int ret = QMessageBox::question(this, "APP_NAME", tr("Are you sure?\n"),
                                     QMessageBox::No | QMessageBox::Yes,
                                     QMessageBox::No);
-    if (ret == (int) QMessageBox::Yes) {
-        if (!ready_)
-            model_.setBreak(true);
-        QDialog::reject();
+    if (ret == (int)QMessageBox::Yes) {
+      if (!ready_) model_.setBreak(true);
+      QDialog::reject();
     }
   }
-  }
+}
 
 void Messages::showChart(bool) {
   this->setWindowTitle("Error change");
   isChart_ = true;
-  this->setFixedSize(600,600);
+  this->setFixedSize(600, 600);
   ui->chart_pushButton->setVisible(false);
   ui->file_name_label->setVisible(false);
   ui->label->setVisible(false);
   ui->progressBar->setVisible(false);
   ui->break_pushButton->setVisible(false);
   ui->chartArea->setVisible(true);
-  ui->chartArea->setGeometry(0,0,600,600);
+  ui->chartArea->setGeometry(0, 0, 600, 600);
   this->exec();
 }
 
-
-void Messages::on_saveChartPushButton_clicked()
-{
-  ui->chartArea->grab().save(QDir::homePath() + "/chart_" +
-      QTime::currentTime().toString()+
-      ".png", "png");
+void Messages::on_saveChartPushButton_clicked() {
+  ui->chartArea->grab().save(
+      QDir::homePath() + "/chart_" + QTime::currentTime().toString() + ".png",
+      "png");
 }
 
 // void Messages::train() {
@@ -233,4 +229,4 @@ void Messages::on_saveChartPushButton_clicked()
 //   // this->show();
 //   this->exec();
 // }
-} // namespace s21
+}  // namespace s21

@@ -4,8 +4,9 @@
 
 SOURCES = ./headers/* ./sources/*
 
+
 #     These special targets are called phony     #
-.PHONY: all dist clean install uninstall dvi build
+.PHONY: all dist clean install uninstall dvi build test
 
 build: ########################
 	cmake -S . -B ./../build
@@ -24,6 +25,10 @@ clean: ########################
 ################## Style check ###################
 style: ########################
 	clang-format -n -verbose -style=Google $(SOURCES)
+
+test: ########################
+	@$(CC) $(TEST_FLAG) $(SRCS_TEST) $(SOURCE_TEST) -o g_tests
+	./g_tests
 
 cppcheck: ########################
 	cppcheck --std=c++17 --suppress=syntaxError $(SOURCES)

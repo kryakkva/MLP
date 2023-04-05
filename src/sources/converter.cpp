@@ -123,16 +123,15 @@ std::vector<double> Converter::convertLoadImg() {
           .scaled(28, 28, Qt::KeepAspectRatio, Qt::SmoothTransformation)
           .transformed(QTransform().rotate(-90));
   // loadedImage.save(QDir::homePath() + "/1L.png", "png");
-  if (isInvert(*_image))
-    loadedImage.invertPixels();
+  if (isInvert(*_image)) loadedImage.invertPixels();
   // loadedImage.save(QDir::homePath() + "/2L.png", "png");
   QColor bg = loadedImage.pixelColor(0, 0).toHsl();
   loadedImage.mirror(false);
   if (loadedImage.width() > loadedImage.height() * 3)
     rescaled(&loadedImage);
   else
-    loadedImage = loadedImage.scaled(28, 28,
-                             Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    loadedImage = loadedImage.scaled(28, 28, Qt::IgnoreAspectRatio,
+                                     Qt::SmoothTransformation);
   // loadedImage.save(QDir::homePath() + "/3L.png", "png");
   for (int y = 0; y < loadedImage.height(); ++y) {
     QDebug dbg(QtDebugMsg);
@@ -141,12 +140,12 @@ std::vector<double> Converter::convertLoadImg() {
       if (color == bg)
         color = Qt::black;
       else if (color.lightness() < 20)
-          color = color.lighter(1000);
+        color = color.lighter(1000);
       loadedImage.setPixelColor(x, y, color);
       _v.push_back(color.lightness() / 255.);
     }
   }
-    // loadedImage.save(QDir::homePath() + "/3.png", "png");
+  // loadedImage.save(QDir::homePath() + "/3.png", "png");
   //        modified = false;
   return _v;
 }

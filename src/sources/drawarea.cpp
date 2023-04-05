@@ -67,10 +67,8 @@ void DrawArea::DrawLineTo(const QPoint &endPoint) {
 }
 
 void DrawArea::LoadImage() {
-  QString fileName = QFileDialog::getOpenFileName(this,
-                                                  tr("OpenFile"),
-                                                  QDir::homePath(),
-                                                  tr("Images (*.bmp)"));
+  QString fileName = QFileDialog::getOpenFileName(
+      this, tr("OpenFile"), QDir::homePath(), tr("Images (*.bmp)"));
   if (!fileName.isEmpty()) {
     QImage loadedImage;
     loadedImage.load(fileName);
@@ -79,9 +77,7 @@ void DrawArea::LoadImage() {
   }
 }
 
-Converter *DrawArea::getConv() {
-  return conv_;
-}
+Converter *DrawArea::getConv() { return conv_; }
 /*
 QRect DrawArea::findCropArea() {
   QImage img = image_;
@@ -231,7 +227,9 @@ double *DrawArea::OpenImage(const QString &fileName) {
         if (color.lightness() < 20)
           color = color.lighter(1000);
         // color.setHsl(color.hue(), color.saturation(), 255);
-		// 			loadedImage.setPixelColor(x, y, QColor::fromHsl(color.hue(), 0, color.lightness()).lighter(500));loadedImage.setPixelColor(x, y, color);
+                // 			loadedImage.setPixelColor(x, y,
+QColor::fromHsl(color.hue(), 0,
+color.lightness()).lighter(500));loadedImage.setPixelColor(x, y, color);
       }
       //				dbg << color.lightness();
       //				ret[num++] = color.lightness() / 255.;
@@ -246,8 +244,10 @@ double *DrawArea::OpenImage(const QString &fileName) {
   //				if (rgb == bg)
   //					rgb = qRgb(0, 0, 0);
   //				else{
-  //					QColor pix = loadedImage.pixelColor(x,y);
-//					pix.setHsl(120, pix.saturation(),pix.lightness());
+  //					QColor pix =
+loadedImage.pixelColor(x,y);
+//					pix.setHsl(120,
+pix.saturation(),pix.lightness());
 //					rgb = pix.rgb();
 //				}
 //				dbg << qGreen(rgb);

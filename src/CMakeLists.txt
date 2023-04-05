@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_PREFIX_PATH "/Users/yarik/Qt/6.4.2/macos/lib/cmake")
+set(CMAKE_PREFIX_PATH "/Users/apaege/Qt/6.4.2/macos/lib/cmake")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS
   Widgets Charts
@@ -31,28 +31,28 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS forms)
 set(SOURCES
         main.cpp
         sources/mainwindow.cpp
-        sources/Function.cpp
-        sources/Matrix.cpp
-        sources/NeuralNetwork.cpp
+        sources/function.cpp
+        sources/matrix.cpp
+        sources/neural_network.cpp
         sources/drawarea.cpp
         sources/converter.cpp
         sources/messages.cpp
-        sources/Edge.cpp
-        sources/Layer.cpp
-        sources/Neuron.cpp
+        sources/edge.cpp
+        sources/layer.cpp
+        sources/neuron.cpp
         )
 
 set(HEADERS
         headers/mainwindow.h
-        headers/Function.h
-        headers/Matrix.h
-        headers/NeuralNetwork.h
+        headers/function.h
+        headers/matrix.h
+        headers/neural_network.h
         headers/drawarea.h
         headers/converter.h
         headers/messages.h
-        headers/Edge.h
-        headers/Layer.h
-        headers/Neuron.h
+        headers/edge.h
+        headers/layer.h
+        headers/neuron.h
         )
 
 set(FORMS

@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+
 #include "./ui_view.h"
 
 namespace s21 {
@@ -18,50 +19,66 @@ static void printVector(std::vector<double> &_v) {
 }
 
 void MainWindow::SignalSlotsConnect() {
-  connect(this, SIGNAL(LetterIs(const QString &)), view_->letterLabel, SLOT(setText(const QString &)));
-  connect(this, SIGNAL(readFile(std::string, mStatus)), model_, SLOT(readData(std::string, mStatus)));
+  connect(this, SIGNAL(LetterIs(const QString &)), view_->letterLabel,
+          SLOT(setText(const QString &)));
+  connect(this, SIGNAL(readFile(std::string, mStatus)), model_,
+          SLOT(readData(std::string, mStatus)));
   connect(this, SIGNAL(setCrossVal(int)), model_, SLOT(setCrossVal(int)));
 
-  connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),view_->testPartLabel, SLOT(setText(const QString &)));
+  connect(draw_area_->getConv(), SIGNAL(sendStr(const QString &)),
+          view_->testPartLabel, SLOT(setText(const QString &)));
 
-  connect(view_->loadTestButton, SIGNAL(clicked(bool)), this, SLOT(openTestFile(bool)));
-  connect(view_->LoadTrainButton, SIGNAL(clicked(bool)), this, SLOT(openTrainFile(bool)));
-  connect(view_->graphRadioButton, SIGNAL(toggled(bool)), this, SLOT(setTypeNet(bool)));
-  connect(view_->layersDial, SIGNAL(valueChanged(int)),view_->lcdNumber, SLOT(display(int)));
-  connect(view_->testScrollBar, SIGNAL(valueChanged(int)),draw_area_->getConv(), SLOT(intToString(int)));
-  // connect(view_->crossValidationRadio, SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
-  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)), this, SLOT(crossVal(bool)));
-  connect(view_->trainButton, SIGNAL(clicked(bool)), model_, SLOT(networkTrain(bool)));
-  connect(view_->testButton, SIGNAL(clicked(bool)), model_, SLOT(networkTest(bool)));
-  connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_, SLOT(SetTestPart(int)));
-  connect(view_->spinBox, SIGNAL(valueChanged(int)), model_, SLOT(setEpoch(int)));
-  connect(view_->chartButton, SIGNAL(clicked(bool)), messages_, SLOT(showChart(bool)));
-  connect(view_->kGroupsSpinBox, SIGNAL(valueChanged(int)), model_, SLOT(setCrossVal(int)));
+  connect(view_->loadTestButton, SIGNAL(clicked(bool)), this,
+          SLOT(openTestFile(bool)));
+  connect(view_->LoadTrainButton, SIGNAL(clicked(bool)), this,
+          SLOT(openTrainFile(bool)));
+  connect(view_->graphRadioButton, SIGNAL(toggled(bool)), this,
+          SLOT(setTypeNet(bool)));
+  connect(view_->layersDial, SIGNAL(valueChanged(int)), view_->lcdNumber,
+          SLOT(display(int)));
+  connect(view_->testScrollBar, SIGNAL(valueChanged(int)),
+          draw_area_->getConv(), SLOT(intToString(int)));
+  // connect(view_->crossValidationRadio,
+  // SIGNAL(clicked(bool)),view_->kGroupsSpinBox, SLOT(setEnabled(bool)));
+  connect(view_->crossValidationRadio, SIGNAL(clicked(bool)), this,
+          SLOT(crossVal(bool)));
+  connect(view_->trainButton, SIGNAL(clicked(bool)), model_,
+          SLOT(networkTrain(bool)));
+  connect(view_->testButton, SIGNAL(clicked(bool)), model_,
+          SLOT(networkTest(bool)));
+  connect(view_->testScrollBar, SIGNAL(valueChanged(int)), model_,
+          SLOT(setTestPart(int)));
+  connect(view_->spinBox, SIGNAL(valueChanged(int)), model_,
+          SLOT(setEpoch(int)));
+  connect(view_->chartButton, SIGNAL(clicked(bool)), messages_,
+          SLOT(showChart(bool)));
+  connect(view_->kGroupsSpinBox, SIGNAL(valueChanged(int)), model_,
+          SLOT(setCrossVal(int)));
 
-  connect(model_, SIGNAL(wrongFile()),
-          this, SLOT(wrongFileError()));
-  connect(model_, SIGNAL(isTrained(bool)),
-          this, SLOT(isTrained(bool)));
-  connect(model_, SIGNAL(ShowResult()),
-          this, SLOT(UpdateTestResult()));
-  connect(model_, SIGNAL(actTestBtn(bool)),
-          view_->testButton, SLOT(setEnabled(bool)));
-  connect(model_, SIGNAL(actChartBtn(bool)),
-          view_->chartButton, SLOT(setEnabled(bool)));
-  connect(model_, SIGNAL(actTrainBtn(bool)),
-          view_->trainButton, SLOT(setEnabled(bool)));
-  connect(model_, SIGNAL(iAmReady(mStatus)),
-          messages_, SLOT(modelReady(mStatus)));
-  connect(model_, SIGNAL(updateChart(double)),
-          messages_, SLOT(updateChart(double)));
-  connect(model_, SIGNAL(dialogMsg(mStatus, std::string)),
-          messages_, SLOT(showDialogMsg(mStatus, std::string)));
-  connect(model_, SIGNAL(updateBar(int, mStatus, int)),
-          messages_, SLOT(updateBarVal(int, mStatus, int)));
+  connect(model_, SIGNAL(wrongFile()), this, SLOT(wrongFileError()));
+  connect(model_, SIGNAL(isTrained(bool)), this, SLOT(isTrained(bool)));
+  connect(model_, SIGNAL(showResult()), this, SLOT(UpdateTestResult()));
+  connect(model_, SIGNAL(actTestBtn(bool)), view_->testButton,
+          SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(actChartBtn(bool)), view_->chartButton,
+          SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(actTrainBtn(bool)), view_->trainButton,
+          SLOT(setEnabled(bool)));
+  connect(model_, SIGNAL(iAmReady(mStatus)), messages_,
+          SLOT(modelReady(mStatus)));
+  connect(model_, SIGNAL(updateChart(double)), messages_,
+          SLOT(updateChart(double)));
+  connect(model_, SIGNAL(dialogMsg(mStatus, std::string)), messages_,
+          SLOT(showDialogMsg(mStatus, std::string)));
+  connect(model_, SIGNAL(updateBar(int, mStatus, int)), messages_,
+          SLOT(updateBarVal(int, mStatus, int)));
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), view_(new Ui::View), model_(new NeuralNetwork()), messages_(new Messages(*model_ )) {
+    : QMainWindow(parent),
+      view_(new Ui::View),
+      model_(new NeuralNetwork()),
+      messages_(new Messages(*model_)) {
   view_->setupUi(this);
   SetDrawArea();
   SignalSlotsConnect();
@@ -75,7 +92,7 @@ MainWindow::~MainWindow() {
   thr_model_->deleteLater();
   messages_->deleteLater();
   draw_area_->deleteLater();
- // delete draw_area_;
+  // delete draw_area_;
   // delete messages_;
   delete model_;
   delete view_;
@@ -83,10 +100,10 @@ MainWindow::~MainWindow() {
 
 void MainWindow::SetDrawArea() {
   draw_area_ = new DrawArea(view_->frame);
-  connect(draw_area_, SIGNAL(SendLetter(std::vector<double>)),
-          this, SLOT(PredictLetter(std::vector<double>)));
-  connect(view_->loadImageButton, SIGNAL(pressed()),
-          draw_area_, SLOT(LoadImage()));
+  connect(draw_area_, SIGNAL(SendLetter(std::vector<double>)), this,
+          SLOT(PredictLetter(std::vector<double>)));
+  connect(view_->loadImageButton, SIGNAL(pressed()), draw_area_,
+          SLOT(LoadImage()));
 }
 
 void MainWindow::PredictLetter(std::vector<double> v) {
@@ -94,50 +111,44 @@ void MainWindow::PredictLetter(std::vector<double> v) {
   LetterIs(QString(QChar(model_->predictLetter())));
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
-  event->accept();
-}
+void MainWindow::closeEvent(QCloseEvent *event) { event->accept(); }
 
 void MainWindow::openTrainFile(bool b) {
-  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile",
-                                                   QDir::homePath(), "Train_file (*.csv)");
-  if (!file_name.isEmpty())
-      emit readFile(file_name.toStdString(), train_);
+  QString file_name = QFileDialog::getOpenFileName(
+      this, "OpenFile", QDir::homePath(), "Train_file (*.csv)");
+  if (!file_name.isEmpty()) emit readFile(file_name.toStdString(), train_);
 }
 
 void MainWindow::openTestFile(bool b) {
-  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile",
-                                                   QDir::homePath(), "Test_file (*.csv)");
-  if (!file_name.isEmpty())
-      emit readFile(file_name.toStdString(), test_);
+  QString file_name = QFileDialog::getOpenFileName(
+      this, "OpenFile", QDir::homePath(), "Test_file (*.csv)");
+  if (!file_name.isEmpty()) emit readFile(file_name.toStdString(), test_);
 }
-
 
 void MainWindow::on_saveWeightsButton_clicked() {
-  QString file_name = QFileDialog::getSaveFileName(this, "Open weights file",
-                                                   QDir::homePath(), "Weights_file (*.mlp)");
-  if (!file_name.isEmpty())
-    model_->saveWeights(file_name.toStdString());
+  QString file_name = QFileDialog::getSaveFileName(
+      this, "Open weights file", QDir::homePath(), "Weights_file (*.mlp)");
+  if (!file_name.isEmpty()) model_->saveWeights(file_name.toStdString());
 }
 
-
 void MainWindow::on_LoadWeightsButton_clicked() {
-  QString file_name = QFileDialog::getOpenFileName(this, "OpenFile",
-                                                   QDir::homePath(), "Weights_file (*.mlp)");
-  if (!file_name.isEmpty())
-    model_->readWeights(file_name.toStdString());
+  QString file_name = QFileDialog::getOpenFileName(
+      this, "OpenFile", QDir::homePath(), "Weights_file (*.mlp)");
+  if (!file_name.isEmpty()) model_->readWeights(file_name.toStdString());
 }
 
 void MainWindow::isTrained(bool trStat) {
-  if (!trStat){
-    view_->train_status_lablel->setText("Attention! The perceptron is not trained. "
-                                        "First load the weights for " + QString::number(model_->getLayer())
-                                        + " hidden layers or train the perceptron.");
-  }
-  else {
-    view_->train_status_lablel->setText("The perceptron is trained on " +
-                                        QString::number(model_->GetCounter()) + " epochs, approximately " +
-                                        QString::number(100 - model_->GetErrorTrain()) + " %");
+  if (!trStat) {
+    view_->train_status_lablel->setText(
+        "Attention! The perceptron is not trained. "
+        "First load the weights for " +
+        QString::number(model_->getLayer()) +
+        " hidden layers or train the perceptron.");
+  } else {
+    view_->train_status_lablel->setText(
+        "The perceptron is trained on " +
+        QString::number(model_->getCounter()) + " epochs, approximately " +
+        QString::number(100 - model_->getErrorTrain()) + " %");
   }
 }
 
@@ -146,7 +157,7 @@ void MainWindow::on_layersDial_sliderReleased() {
     model_->reInitNet(view_->layersDial->value(), model_->getTypeNet());
 }
 
-void  MainWindow::setTypeNet(bool b) {
+void MainWindow::setTypeNet(bool b) {
   // model_->setTypeNet(b);
   qInfo() << b;
   model_->reInitNet(model_->getLayer(), b);
@@ -154,20 +165,18 @@ void  MainWindow::setTypeNet(bool b) {
 
 void MainWindow::crossVal(bool b) {
   view_->kGroupsSpinBox->setEnabled(b);
-  if (!b){
+  if (!b) {
     emit setCrossVal(0);
-    if (model_->_vector_test.empty())
-      view_->trainButton->setEnabled(false);
-  }
-  else {
+    if (model_->vector_test_.empty()) view_->trainButton->setEnabled(false);
+  } else {
     emit setCrossVal(view_->kGroupsSpinBox->value());
-    if (!model_->_vector_train.empty())
-      view_->trainButton->setEnabled(true);
+    if (!model_->vector_train_.empty()) view_->trainButton->setEnabled(true);
   }
 }
 
 void MainWindow::wrongFileError() {
-  QMessageBox::information(this, "you open wrong file", "please open right file");
+  QMessageBox::information(this, "you open wrong file",
+                           "please open right file");
 }
 
 void MainWindow::UpdateTestResult() {
@@ -224,7 +233,8 @@ void MainWindow::initMlp() {
       switch (dialog.exec()) {
         case 0:break;
         case 1:
-          // folderName = QFileDialog::getExistingDirectory(this,tr("OpenFile"),QDir::homePath());
+          // folderName =
+QFileDialog::getExistingDirectory(this,tr("OpenFile"),QDir::homePath());
           fileName = QFileDialog::getOpenFileName(this,
                                                   tr("OpenFile"),
                                                   QDir::homePath(),
@@ -234,7 +244,8 @@ void MainWindow::initMlp() {
       }
       // QDir().mkdir("../MyFolder");
       // QString fileName = QFileDialog::getOpenFileName(this, tr("OpenFile"),
-      //                                                 QDir::homePath(), tr("Images (*.png *.jpg)"));
+      //                                                 QDir::homePath(),
+tr("Images (*.png *.jpg)"));
       // QString name = "/Users/yarik/MyProjects/MLP/src_data";
       // QString name = "../weights";
     }

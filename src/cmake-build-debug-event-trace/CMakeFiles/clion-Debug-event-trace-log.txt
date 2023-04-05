@@ -1,0 +1,4 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja --profiling-format=google-trace --profiling-output=CMakeFiles/clion-event-trace.json -G Ninja -S /Users/apaege/kryakva_apaege/master/MLP/src -B /Users/apaege/kryakva_apaege/master/MLP/src/cmake-build-debug-event-trace
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/apaege/kryakva_apaege/master/MLP/src/cmake-build-debug-event-trace

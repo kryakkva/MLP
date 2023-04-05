@@ -5,14 +5,14 @@
 #ifndef MLP_CONVERTER_H
 #define MLP_CONVERTER_H
 
-#include <QObject>
 #include <QImage>
+#include <QObject>
 #include <iostream>
 #include <vector>
 
 namespace s21 {
 
-class Converter : public  QObject {
+class Converter : public QObject {
   Q_OBJECT
 
  public:
@@ -33,6 +33,7 @@ class Converter : public  QObject {
 
  private slots:
   void intToString(int);
+
  private:
   bool isInvert(QImage &img);
 };

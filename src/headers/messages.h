@@ -4,7 +4,8 @@
 #include <QDialog>
 #include <QEvent>
 #include <QtCharts/QtCharts>
-#include "NeuralNetwork.h"
+
+#include "neural_network.h"
 
 namespace s21 {
 
@@ -12,14 +13,13 @@ namespace Ui {
 class Messages;
 }
 
-class Messages : public QDialog
-{
-    Q_OBJECT
+class Messages : public QDialog {
+  Q_OBJECT
 
-public:
+ public:
   explicit Messages(NeuralNetwork &model, QWidget *parent = nullptr);
   ~Messages();
-private slots:
+ private slots:
   // void readingFile(std::string str);
   void chartBtnClicked(bool b);
   void breakBtnClicked(bool b);
@@ -33,7 +33,7 @@ private slots:
 
   void on_saveChartPushButton_clicked();
 
-private:
+ private:
   Ui::Messages *ui;
   NeuralNetwork &model_;
   QBarSet *set_;
@@ -47,6 +47,5 @@ private:
   void clearChart();
 };
 
-
-} // namespace s21
-#endif // S21_MESSAGES_H
+}  // namespace s21
+#endif  // S21_MESSAGES_H

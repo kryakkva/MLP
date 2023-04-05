@@ -3,8 +3,8 @@
 
 #include <QMainWindow>
 
-#include "NeuralNetwork.h"
 #include "drawarea.h"
+#include "neural_network.h"
 // #include "StateMessage.h"
 #include "messages.h"
 
@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow {
   void on_saveWeightsButton_clicked();
   void on_LoadWeightsButton_clicked();
   void isTrained(bool);
-signals:
+ signals:
   void LetterIs(const QString &);
   void readFile(std::string, mStatus);
   void setCrossVal(int i);
@@ -54,7 +54,6 @@ signals:
 
   QThread *thr_model_ = nullptr;
   // QThread *thr_state_ = nullptr;
-
 };
 }  // namespace s21
 #endif  // S21_MAINWINDOW_H
